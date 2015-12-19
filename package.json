@@ -1,0 +1,23 @@
+{
+  "name": "barfly-api",
+  "version": "1.0.0",
+  "description": "The part that handles the data",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barflyorders/barfly-api.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/barflyorders/barfly-api/issues"
+  },
+  "homepage": "https://github.com/barflyorders/barfly-api#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
