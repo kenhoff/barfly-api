@@ -20,6 +20,7 @@
   "dependencies": {
     "cors": "^2.7.1",
     "express": "^4.13.3",
-    "express-jwt": "^3.3.0"
+    "express-jwt": "^3.3.0",
+    "rethinkdb": "^2.2.0"
   }
 }
