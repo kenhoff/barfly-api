@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/barflyorders/barfly-api#readme",
   "dependencies": {
-    "express": "^4.13.3"
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "express-jwt": "^3.3.0"
   }
 }
