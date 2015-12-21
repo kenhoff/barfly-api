@@ -11,6 +11,8 @@ Thoughts on API routes
 	- `POST /user/bars` - creates a new bar with name, zip code, and adds the bar to the user in the token
 - `GET /bars` - gets all bars (admin)
 - `POST /bars` - creates a new bar with a name and zip code (admin only)
+	- `GET /bars/:barID` - gets info about a bar, provided that the user has the bar in their app_metadata
+	- `POST /bars/:barID` - updates info about a bar, provided that the user has the bar in their app_metadata
 	- `GET /bars/:barID/orders` - gets all orders for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 	- `POST /bars/:barID/orders` - creates a new order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 		- `GET /bars/:barID/orders/:orderID` - get a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
@@ -18,9 +20,9 @@ Thoughts on API routes
 			- `POST /bars/:barID/orders/:orderID/send` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
 - `GET /orders` - gets *all* orders, admin only.
 
-## Collections that we have
+## Tables
 
-### Primary collections:
+### Primary tables
 - `users` - can be bar managers, sales reps, and (later) distributor/supplier managers
 	- if the `user.type` is `rep`, then the rep also must have one `distributor`.
 	- if the `user.type` is `bar_manager`, then the bar manager must also have a list of `bars`.
@@ -32,11 +34,12 @@ Thoughts on API routes
 - `orders` - orders from a bar. each `order` contains a `bar`, a `user` bar manager that ordered it, and some other metadata.
 - `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size).
 
-### Secondary collections:
+### Secondary tables
 
 - Sizes - sizes for liquor
 - Zip codes - a single product is carried by a single distributor in a zip code. this is a list of all zip codes
 - Suppliers - Suppliers carry multiple products. sort of like brands.
+- `counters` - keeps track of serial indexes for each table.
 
 
 when a user orders a product:

@@ -28,6 +28,12 @@ app.get("/", function(req, res) {
 	res.send(200)
 })
 
+app.get("/user/bars", jwtCheck, function (req, res) {
+	getUserBars(req.user.user_id, function (bars) {
+		res.send(bars)
+	})
+})
+
 app.post("/user/bars", jwtCheck, function(req, res) {
 	// console.log(req.body);
 
