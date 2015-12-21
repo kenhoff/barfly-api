@@ -71,34 +71,6 @@ app.post("/user/bars", jwtCheck, function(req, res) {
 	}
 })
 
-app.get("/legacy_orders", jwtCheck, function(req, res) {
-	console.log(req.user);
-	onConnect(function(connection) {
-		r.table('orders').filter(r.row('user').eq(req.user.user_id)).run(connection, function(err, cursor) {
-			if (err) {
-				throw err;
-			} else {
-				cursor.toArray(function(err, result) {
-					if (err) throw err
-					res.json(result)
-				})
-			}
-		})
-	})
-})
-
-app.post("/legacy_orders", jwtCheck, function(req, res) {
-	userID = req.user.user_id
-	onConnect(function(connection) {
-		r.table('orders').insert({
-			asdf: "1234",
-			user: userID
-		}).run(connection, function(err, result) {
-			res.send(200)
-		})
-	})
-})
-
 app.listen(port, function() {
 	console.log("Listening on", port);
 })
