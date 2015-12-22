@@ -71,6 +71,22 @@ app.post("/user/bars", jwtCheck, function(req, res) {
 	}
 })
 
+app.get("/bars/:barID", jwtCheck, function (req, res) {
+	getUserBars(req.user.user_id, function (bars) {
+		barID = parseInt(req.params.barID)
+		if (bars.indexOf(barID) > -1) {
+			onConnect(function (connection) {
+				r.table("bars").get(barID).run(connection, function (err, result) {
+					res.send(result)
+				})
+			})
+		}
+		else {
+			res.sendStatus(401)
+		}
+	})
+})
+
 app.listen(port, function() {
 	console.log("Listening on", port);
 })
