@@ -18,9 +18,11 @@
   },
   "homepage": "https://github.com/barflyorders/barfly-api#readme",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "express-jwt": "^3.3.0",
+    "request": "^2.67.0",
     "rethinkdb": "^2.2.0"
   }
 }
