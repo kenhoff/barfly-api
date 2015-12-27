@@ -72,11 +72,16 @@ app.post("/user/bars", jwtCheck, function(req, res) {
 })
 
 app.get("/bars/:barID", jwtCheck, function (req, res) {
+	console.log("got request for bar", req.params.barID, "at", Date.now());
 	getUserBars(req.user.user_id, function (bars) {
 		barID = parseInt(req.params.barID)
 		if (bars.indexOf(barID) > -1) {
+			console.log("found bar", barID, ", calling onConnect");
 			onConnect(function (connection) {
-				r.table("bars").get(barID).run(connection, function (err, result) {
+				// console.log(connection);
+				console.log("connection successful, looking up bar", req.params.barID);
+				r.table("bars").get(parseInt(req.params.barID)).run(connection, function (err, result) {
+					console.log(result);
 					res.send(result)
 				})
 			})
@@ -143,6 +148,7 @@ getNextSequence = function(name, connection, cb) {
 }
 
 onConnect = function(cb) {
+	// console.log("opening new connection");
 	fs.readFile("./cacert", function(err, caCert) {
 		r.connect({
 			host: "aws-us-east-1-portal.9.dblayer.com",
