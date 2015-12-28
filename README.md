@@ -13,11 +13,18 @@ Thoughts on API routes
 - `POST /bars` - creates a new bar with a name and zip code (admin only)
 	- `GET /bars/:barID` - gets info about a bar, provided that the user has the bar in their app_metadata
 	- `POST /bars/:barID` - updates info about a bar, provided that the user has the bar in their app_metadata
-	- `GET /bars/:barID/orders` - gets all orders for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-	- `POST /bars/:barID/orders` - creates a new order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-		- `GET /bars/:barID/orders/:orderID` - get a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-		- `POST /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-			- `POST /bars/:barID/orders/:orderID/send` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
+		<!-- memberships -->
+		- `GET /bars/:barID/users` - gets all users for that bar, with roles (provided the user is in the bar, or is an admin)
+		- `POST /bars/:barID/users` - adds a new user to that bar, with role (provided the user is in the bar, or is an admin)
+			- `GET /bars/:barID/users/:userID` - gets a single user's membership from that bar, with their role information (provided the requesting user is in the bar, or is an admin)
+			- `POST /bars/:barID/users/:userID` - updates a single user's membership from that bar, with their role information (provided the requesting user is in the bar, or is an admin)
+			- `DELETE /bars/:barID/users/:userID` - deletes a single user's membership from that bar (provided the requesting user is in the bar, or is an admin)
+		<!-- orders -->
+		- `GET /bars/:barID/orders` - gets all orders for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+		- `POST /bars/:barID/orders` - creates a new order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+			- `GET /bars/:barID/orders/:orderID` - get a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+			- `POST /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+				- `POST /bars/:barID/orders/:orderID/send` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
 - `GET /orders` - gets *all* orders, admin only.
 
 ## Tables
@@ -27,6 +34,7 @@ Thoughts on API routes
 	- if the `user.type` is `rep`, then the rep also must have one `distributor`.
 	- if the `user.type` is `bar_manager`, then the bar manager must also have a list of `bars`.
 - `bars` - places where liquor is delivered to, managed by multiple bar managers - basically have different views for different bars - needs to have a `zipcode`
+- `memberships` - list of roles assigned to users in bars. For now, everyone is an `owner` (which can order & edit bar info). Later on, we'll have `manager`s (which can only order) and.....other roles, as needed.
 - `products` - liquor, beer, and wine. each product has multiple sizes - there aren't multiple products in different sizes (e.g. patron has only one product listing, with x sizes - there aren't x patron products, one for each size). Each product also has a supplier, or brand.
 - `accounts` - each account has one `distributor`, one `bar`, and one `rep`.
 - `distributors` - each distributor has a list of accounts, specified in the `accounts` collection.
@@ -41,6 +49,7 @@ Thoughts on API routes
 - Suppliers - Suppliers carry multiple products. sort of like brands.
 - `counters` - keeps track of serial indexes for each table.
 
+## Order flows
 
 when a user orders a product:
 - look up the user's bar's zip code
@@ -68,8 +77,3 @@ so the next issue is, what happens if we don't have the right information yet?
 - What happens if a user tries to order a specific product, and we don't know which rep it's carried by?
 	- We should alos allow users to create new reps. Once the user orders (and all of this stuff will happen if they're putting in a new product), we won't be able to find an "account" for the bar, so we'll need to ask the users to select from a number of reps from this distributor, or put in a new rep that works for the distributor of this product
 (all of this stuff should happen at ordering time - no pre-filling or admin-style stuff necessary) - probably modals, popups, whatever we can do.
-
-
-side thoughts - that means that we're gonna need to have separate states for if a user has more than 1 bar
-
-on user activation and sign in, we need them to tell us a little bit about their bar - notably the bar's name and the bar's zip code. once they've done that, we create a new bar, add the user to that bar, and then we're off.

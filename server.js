@@ -28,8 +28,8 @@ app.get("/", function(req, res) {
 	res.send(200)
 })
 
-app.get("/user/bars", jwtCheck, function (req, res) {
-	getUserBars(req.user.user_id, function (bars) {
+app.get("/user/bars", jwtCheck, function(req, res) {
+	getUserBars(req.user.user_id, function(bars) {
 		res.send(bars)
 	})
 })
@@ -53,14 +53,11 @@ app.post("/user/bars", jwtCheck, function(req, res) {
 					zipCode: zipCode
 				}).run(connection, function(err, result) {
 					newBarID = newSeq
-					getUserBars(req.user.user_id, function(bars) {
-						bars.push(newBarID)
-						saveUserBars(req.user.user_id, bars, function() {
-							res.send({
-								id: newSeq,
-								barName: barName,
-								zipCode: zipCode
-							})
+					addUserToBar(req.user.user_id, newBarID, function() {
+						res.send({
+							id: newSeq,
+							barName: barName,
+							zipCode: zipCode
 						})
 					})
 				})
@@ -71,18 +68,16 @@ app.post("/user/bars", jwtCheck, function(req, res) {
 	}
 })
 
-app.get("/bars/:barID", jwtCheck, function (req, res) {
-	getUserBars(req.user.user_id, function (bars) {
+app.get("/bars/:barID", jwtCheck, function(req, res) {
+	getUserBars(req.user.user_id, function(bars) {
 		barID = parseInt(req.params.barID)
 		if (bars.indexOf(barID) > -1) {
-			onConnect(function (connection) {
-				// console.log(connection);
-				r.table("bars").get(parseInt(req.params.barID)).run(connection, function (err, result) {
+			onConnect(function(connection) {
+				r.table("bars").get(parseInt(req.params.barID)).run(connection, function(err, result) {
 					res.send(result)
 				})
 			})
-		}
-		else {
+		} else {
 			res.sendStatus(401)
 		}
 	})
@@ -92,43 +87,48 @@ app.listen(port, function() {
 	console.log("Listening on", port);
 })
 
-saveUserBars = function(user_id, bars, cb) {
-	AUTH0_URL = "https://barfly.auth0.com"
-
-	opts = {
-		url: AUTH0_URL + "/api/v2/users/" + user_id,
-		method: "PATCH",
-		headers: {
-			"Authorization": "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX0sInVzZXJzX2FwcF9tZXRhZGF0YSI6eyJhY3Rpb25zIjpbInVwZGF0ZSJdfX0sImlhdCI6MTQ1MDczNjExOSwianRpIjoiODllNTMzOWZjZmJiNDE2MzE0OWE0NDUxMTg0MGIyNjEifQ.MErq5h8dzIrFRXlpPNznATXY4Gjv5jGKr9Mccrb8n1c"
-		},
-		body: {
-			"app_metadata": {
-				"bars": bars
-			}
-		},
-		json: true
-	}
-	request(opts, function(err, response, body) {
-		cb()
+addUserToBar = function(userID, barID, cb) {
+	onConnect(function(connection) {
+		r.table("memberships").getAll(userID, {
+			index: "userID"
+		}).filter({
+			barID: barID
+		}).run(connection, function(err, cursor) {
+			cursor.toArray(function(err, results) {
+				if (results.length == 0) {
+					r.table("memberships").insert({
+						barID: barID,
+						userID: userID,
+						role: "manager"
+					}).run(connection, function(err, result) {
+						if (!err) {
+							cb()
+						} else {
+							// throw something?
+						}
+					})
+				}
+			})
+		})
 	})
 }
 
-getUserBars = function(user_id, cb) {
+getUserBars = function(userID, cb) {
 
-	AUTH0_URL = "https://barfly.auth0.com"
+	// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "memberships" table
 
-	opts = {
-		url: AUTH0_URL + "/api/v2/users/" + user_id,
-		headers: {
-			"Authorization": "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTA3MzU2NTIsImp0aSI6IjQ1ZTliMzIyZGFlMjkxYTlkM2RkNWExMzA1NzIzOTA4In0.jyxlkgFE9H1Xfrd_ubcvBt5LPL02HmJowLfkPKHqjyo"
-		}
-	}
-	request(opts, function(err, response, body) {
-		if (!(JSON.parse(body).app_metadata)) {
-			cb([])
-		} else {
-			cb(JSON.parse(body).app_metadata.bars);
-		}
+	onConnect(function(connection) {
+		r.table("memberships").getAll(userID, {
+			index: "userID"
+		}).withFields("barID").run(connection, function(err, cursor) {
+			cursor.toArray(function(err, results) {
+				bars = []
+				for (var i = 0; i < results.length; i++) {
+					bars.push(results[i].barID)
+				}
+				cb(bars)
+			})
+		})
 	})
 }
 
