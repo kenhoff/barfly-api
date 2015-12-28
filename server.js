@@ -5,8 +5,6 @@ var bodyParser = require('body-parser');
 var request = require('request');
 port = process.env.PORT || 1310
 
-
-
 // cors lets us call api.barflyorders.com from barflyorders.com
 app.use(cors())
 

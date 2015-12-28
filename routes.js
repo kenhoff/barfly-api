@@ -1,74 +1,19 @@
-var jwt = require('express-jwt');
 var r = require('rethinkdb');
 var fs = require('fs');
 
+var onConnect = require('./onConnect.js');
+var getNextSequence = require('./getNextSequence.js');
+
+var jwtCheck = require('./jwtCheck.js');
 
 module.exports = function(app) {
-
-	var jwtCheck = jwt({
-		secret: new Buffer('hkff8xzqlpnJMnywtfhM3YaNHLl-RGFlOYGrYqSKl41wxrXxVzcLEGyqt0ErqqPe', 'base64'),
-		audience: 'JeIT5hdK0PXWuMVE1GSYbDT4Uw2HQpKx'
-	});
-
 
 	app.get("/", function(req, res) {
 		res.send(200)
 	})
 
-	app.get("/user/bars", jwtCheck, function(req, res) {
-		getUserBars(req.user.user_id, function(bars) {
-			res.send(bars)
-		})
-	})
-
-	app.post("/user/bars", jwtCheck, function(req, res) {
-		// console.log(req.body);
-
-		// validate name and zipcode
-		zipCode = req.body.zipCode
-		barName = req.body.barName
-
-		re = /^\d{5}$/ig
-		if (zipCode.match(re) && zipCode.match(re).length == 1) {
-			// attempt to create the bar
-			// first, get the latest "bars" sequence # from the "counters" table
-			onConnect(function(connection) {
-				getNextSequence("bars", connection, function(newSeq) {
-					r.table("bars").insert({
-						id: newSeq,
-						barName: barName,
-						zipCode: zipCode
-					}).run(connection, function(err, result) {
-						newBarID = newSeq
-						addUserToBar(req.user.user_id, newBarID, function() {
-							res.send({
-								id: newSeq,
-								barName: barName,
-								zipCode: zipCode
-							})
-						})
-					})
-				})
-			})
-		} else {
-			res.sendStatus(400)
-		}
-	})
-
-	app.get("/bars/:barID", jwtCheck, function(req, res) {
-		getUserBars(req.user.user_id, function(bars) {
-			barID = parseInt(req.params.barID)
-			if (bars.indexOf(barID) > -1) {
-				onConnect(function(connection) {
-					r.table("bars").get(parseInt(req.params.barID)).run(connection, function(err, result) {
-						res.send(result)
-					})
-				})
-			} else {
-				res.sendStatus(401)
-			}
-		})
-	})
+	require("./routes/user.js")(app)
+	require("./routes/bars.js")(app)
 
 	addUserToBar = function(userID, barID, cb) {
 		onConnect(function(connection) {
@@ -97,9 +42,7 @@ module.exports = function(app) {
 	}
 
 	getUserBars = function(userID, cb) {
-
 		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "memberships" table
-
 		onConnect(function(connection) {
 			r.table("memberships").getAll(userID, {
 				index: "userID"
@@ -114,37 +57,4 @@ module.exports = function(app) {
 			})
 		})
 	}
-
-	getNextSequence = function(name, connection, cb) {
-		r.table("counters").get(name).update({
-			seq: r.row("seq").add(1)
-		}, {
-			returnChanges: true
-		}).run(connection, function(err, result) {
-			newSeq = result["changes"][0]["new_val"]["seq"]
-			cb(newSeq)
-		})
-	}
-
-	onConnect = function(cb) {
-		// console.log("opening new connection");
-		fs.readFile("./cacert", function(err, caCert) {
-			r.connect({
-				host: "aws-us-east-1-portal.9.dblayer.com",
-				port: 10384,
-				authKey: "auwvteoiuclrdkxjEofivucXKYESOalvkjcetdlfxkm",
-				db: "barfly_production",
-				ssl: {
-					ca: caCert
-				}
-			}, function(err, conn) {
-				if (!err) {
-					cb(conn)
-				} else {
-					throw "Database connection error"
-				}
-			})
-		})
-	}
-
 }
