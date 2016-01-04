@@ -14,6 +14,7 @@ module.exports = function(app) {
 
 	require("./routes/user.js")(app)
 	require("./routes/bars.js")(app)
+	require("./routes/products.js")(app)
 
 	addUserToBar = function(userID, barID, cb) {
 		onConnect(function(connection) {
