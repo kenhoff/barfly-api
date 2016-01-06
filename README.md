@@ -39,10 +39,15 @@ Thoughts on API routes
 - `memberships` - list of roles assigned to users in bars. For now, everyone is an `owner` (which can order & edit bar info). Later on, we'll have `manager`s (which can only order) and.....other roles, as needed.
 - `products` - liquor, beer, and wine. each product has multiple sizes - there aren't multiple products in different sizes (e.g. patron has only one product listing, with x sizes - there aren't x patron products, one for each size). Each product also has a supplier, or brand.
 - `accounts` - each account has one `distributor`, one `bar`, and one `rep`.
-- `distributors` - each distributor has a list of accounts, specified in the `accounts` collection.
-- `product_distributor_zipcodes` - each entry has one `product`, one `distributor`, and one `zipcode`. Compound index - on zipcode and product - there can only be one distributor per product in a given zip code.
-- `orders` - orders from a bar. each `order` contains a `bar`, a `user` bar manager that ordered it, and some other metadata.
-- `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size).
+- `distributors`
+- `product_distributor_zipcodes` - reference table, no resources. each entry has one `product`, one `distributor`, and one `zipcode`. Compound index - on zipcode and product - there can only be one distributor per product in a given zip code.
+- `orders` - orders from a bar. each `order` contains a `bar` (barID), `created_by` (userID), `sent_by` (userID), `created_at` (datetime), `sent_at` (datetime)
+
+
+- `product_orders` - individual product orders. each one contains a product ID, product size, product count, and parent `order`.
+
+
+<!-- - `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size). -->
 
 ### Secondary tables
 
