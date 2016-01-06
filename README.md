@@ -23,10 +23,10 @@ Thoughts on API routes
 		- `GET /bars/:barID/orders` - gets all orders for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 		- `POST /bars/:barID/orders` - creates a new order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 			- `GET /bars/:barID/orders/:orderID` - get a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-			- `POST /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-				- `POST /bars/:barID/orders/:orderID/send` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
+			- `PATCH /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+			- `POST /bars/:barID/orders/:orderID` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
 - `GET /products` - gets *all* products, not secured.
-- `POST /products` - creates a new product, secured, fires off lots of notifications to Ken & Peter saying that we've got to take a look at the new product 
+- `POST /products` - creates a new product, secured, fires off lots of notifications to Ken & Peter saying that we've got to take a look at the new product
 - `GET /orders` - gets *all* orders, admin only.
 
 ## Tables
@@ -39,10 +39,15 @@ Thoughts on API routes
 - `memberships` - list of roles assigned to users in bars. For now, everyone is an `owner` (which can order & edit bar info). Later on, we'll have `manager`s (which can only order) and.....other roles, as needed.
 - `products` - liquor, beer, and wine. each product has multiple sizes - there aren't multiple products in different sizes (e.g. patron has only one product listing, with x sizes - there aren't x patron products, one for each size). Each product also has a supplier, or brand.
 - `accounts` - each account has one `distributor`, one `bar`, and one `rep`.
-- `distributors` - each distributor has a list of accounts, specified in the `accounts` collection.
-- `product_distributor_zipcodes` - each entry has one `product`, one `distributor`, and one `zipcode`. Compound index - on zipcode and product - there can only be one distributor per product in a given zip code.
-- `orders` - orders from a bar. each `order` contains a `bar`, a `user` bar manager that ordered it, and some other metadata.
-- `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size).
+- `distributors`
+- `product_distributor_zipcodes` - reference table, no resources. each entry has one `product`, one `distributor`, and one `zipcode`. Compound index - on zipcode and product - there can only be one distributor per product in a given zip code.
+- `orders` - orders from a bar. each `order` contains a `bar` (barID), `created_by` (userID), `sent_by` (userID), `created_at` (datetime), `sent_at` (datetime)
+
+
+- `product_orders` - individual product orders. each one contains a product ID, product size, product count, and parent `order`.
+
+
+<!-- - `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size). -->
 
 ### Secondary tables
 

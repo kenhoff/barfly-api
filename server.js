@@ -10,7 +10,7 @@ app.use(cors())
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
-	extended: false
+	extended: true
 }))
 
 // parse application/json
