@@ -5,11 +5,51 @@ var r = require('rethinkdb');
 var async = require('async');
 
 module.exports = function(app) {
+
+	app.get("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
+		// TODO: check and make sure the user in the jwt is a member of this bar
+		// get all productOrders with a given parentOrderID, zip them up without IDs
+		onConnect(function(connection) {
+				r.table('product_orders').filter({
+					parentOrderID: parseInt(req.params.orderID)
+				}).without("id", "parentOrderID").run(connection, function(err, cursor) {
+					cursor.toArray(function(err, results) {
+						res.json({
+							orders: results
+						})
+					})
+				})
+			})
+			// res.json({})
+			/*
+			should send something like
+			{
+				orders: [{
+					productID: '27',
+					productSize: '8',
+					productQuantity: '8'
+				}, {
+					productID: '27',
+					productSize: '9',
+					productQuantity: '6'
+				}, {
+					productID: '27',
+					productSize: '4',
+					productQuantity: '9'
+				}, {
+					productID: '30',
+					productSize: '10',
+					productQuantity: '0'
+				}]
+			}
+			*/
+	})
+
+
 	app.patch("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
 		// TODO: check and make sure the user in the jwt is a member of this bar
-		console.log(req.body);
 		if ((req.body.orders == null) || (req.body.orders == [])) {
-			console.log("delete all products_orders!");
+			// console.log("delete all products_orders!");
 			// delete all product_orders for this order
 			removeProductOrders(req.params.orderID, function() {
 				// need to handle error
@@ -20,8 +60,6 @@ module.exports = function(app) {
 			// (need to populate parentOrderID for all the productOrders, blah)
 			for (order of req.body.orders) {
 				order["parentOrderID"] = req.params.orderID
-				order["productSizeID"] = order["productSize"]
-				delete order["productSize"]
 			}
 			// async upsert and cull
 			async.parallel(
@@ -52,6 +90,7 @@ module.exports = function(app) {
 				parentOrderID: parseInt(parentOrderID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
+					// yay binding!
 					async.map(results, cullProductOrderIfNeeded.bind(this, orders), function(err) {
 						cb()
 					})
@@ -70,8 +109,8 @@ module.exports = function(app) {
 			}
 		}
 		// however, if we get all the way through and can't find it, then we delete the dbProductOrder
-		onConnect(function (connection) {
-			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function (err, result) {
+		onConnect(function(connection) {
+			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function(err, result) {
 				console.log("deleted", dbProductOrder["id"]);
 				cb()
 			})
