@@ -23,10 +23,10 @@ Thoughts on API routes
 		- `GET /bars/:barID/orders` - gets all orders for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 		- `POST /bars/:barID/orders` - creates a new order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
 			- `GET /bars/:barID/orders/:orderID` - get a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-			- `POST /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
-				- `POST /bars/:barID/orders/:orderID/send` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
+			- `PATCH /bars/:barID/orders/:orderID` - update a specific order for a bar, provided the user in the token has the bar in their app_metadata (or user is admin)
+			- `POST /bars/:barID/orders/:orderID` - sends the specific order, provided the user in the token has the var in their app_metadata (or user is admin). fires off all the requisite texts and emails. also sets the current user as the "sender" for the order.
 - `GET /products` - gets *all* products, not secured.
-- `POST /products` - creates a new product, secured, fires off lots of notifications to Ken & Peter saying that we've got to take a look at the new product 
+- `POST /products` - creates a new product, secured, fires off lots of notifications to Ken & Peter saying that we've got to take a look at the new product
 - `GET /orders` - gets *all* orders, admin only.
 
 ## Tables

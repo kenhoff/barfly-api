@@ -35,7 +35,8 @@ module.exports = function(app) {
 			getNextSequence("products", connection, function(newSeq) {
 				r.table('products').insert({
 					id: newSeq,
-					productName: req.body.productName
+					productName: req.body.productName,
+					productSizes: [parseInt(req.body.productSize)]
 				}).run(connection, function(err, result) {
 					if (!err) {
 						res.json({
