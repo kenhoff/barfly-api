@@ -111,7 +111,7 @@ module.exports = function(app) {
 		// however, if we get all the way through and can't find it, then we delete the dbProductOrder
 		onConnect(function(connection) {
 			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function(err, result) {
-				console.log("deleted", dbProductOrder["id"]);
+				// console.log("deleted", dbProductOrder["id"]);
 				cb()
 			})
 		})
@@ -148,7 +148,7 @@ module.exports = function(app) {
 	}
 
 	insertProductOrder = function(parentOrderID, productID, productSizeID, productQuantity, cb) {
-		console.log("inserting new product order");
+		// console.log("inserting new product order");
 		// insert sequentially
 		onConnect(function(connection) {
 			getNextSequence("product_orders", connection, function(newSeq) {
