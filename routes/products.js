@@ -32,15 +32,43 @@ module.exports = function(app) {
 
 	app.post("/products", jwtCheck, function(req, res) {
 		onConnect(function(connection) {
-			getNextSequence("products", connection, function(newSeq) {
-				r.table('products').insert({
-					id: newSeq,
-					productName: req.body.productName,
-					productSizes: [parseInt(req.body.productSize)]
-				}).run(connection, function(err, result) {
-					if (!err) {
-						res.json({
-							productID: newSeq
+			// check if the name inserted is exactly the same as the name of a product in the DB.
+			r.table('products').filter({
+				productName: req.body.productName
+			}).run(connection, function(err, cursor) {
+				cursor.toArray(function(err, results) {
+					if (results.length > 1) {
+						// throw err
+					} else if (results.length == 1) {
+						// just update this product
+						// If so, just update that product and append the new size.
+						results[0].productSizes.push(parseInt(req.body.productSize))
+						console.log(results[0]);
+						r.table('products').get(results[0].id).update({
+							productSizes: results[0].productSizes
+						}).run(connection, function(err, result) {
+							if (!err) {
+								res.json({
+									productID: results[0].id
+								})
+							}
+						})
+					} else {
+						// create the new product
+						// else, create a new product with that size.
+						// alert alert! need to send emails to Ken & Peter when this happens.
+						getNextSequence("products", connection, function(newSeq) {
+							r.table('products').insert({
+								id: newSeq,
+								productName: req.body.productName,
+								productSizes: [parseInt(req.body.productSize)]
+							}).run(connection, function(err, result) {
+								if (!err) {
+									res.json({
+										productID: newSeq
+									})
+								}
+							})
 						})
 					}
 				})

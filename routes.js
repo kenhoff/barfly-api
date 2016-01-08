@@ -18,17 +18,19 @@ module.exports = function(app) {
 	require("./routes/sizes.js")(app)
 	require("./routes/orders.js")(app)
 	require("./routes/distributors.js")(app)
+	require("./routes/accounts.js")(app)
+	require("./routes/reps.js")(app)
 
 	addUserToBar = function(userID, barID, cb) {
 		onConnect(function(connection) {
-			r.table("memberships").getAll(userID, {
+			r.table("bar_memberships").getAll(userID, {
 				index: "userID"
 			}).filter({
 				barID: barID
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					if (results.length == 0) {
-						r.table("memberships").insert({
+						r.table("bar_memberships").insert({
 							barID: barID,
 							userID: userID,
 							role: "manager"
@@ -46,9 +48,9 @@ module.exports = function(app) {
 	}
 
 	getUserBars = function(userID, cb) {
-		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "memberships" table
+		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
 		onConnect(function(connection) {
-			r.table("memberships").getAll(userID, {
+			r.table("bar_memberships").getAll(userID, {
 				index: "userID"
 			}).withFields("barID").run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
