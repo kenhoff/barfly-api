@@ -24,7 +24,7 @@ module.exports = function(app) {
 
 	app.post("/accounts", jwtCheck, function(req, res) {
 		onConnect(function(connection) {
-			getNextSequence("accounts", connection, function(newSeq) {
+			getNextSequence("accounts", connection, function(err, newSeq) {
 				// should really probably check to see if there's already an account in here...
 				r.table('accounts').insert({
 					barID: parseInt(req.body.barID),

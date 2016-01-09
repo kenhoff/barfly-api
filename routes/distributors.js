@@ -18,7 +18,7 @@ module.exports = function(app) {
 
 	app.post("/distributors", jwtCheck, function(req, res) {
 		onConnect(function(connection) {
-			getNextSequence("distributors", connection, function(newSeq) {
+			getNextSequence("distributors", connection, function(err, newSeq) {
 				r.table("distributors").insert({
 					id: newSeq,
 					distributorName: req.body.distributorName

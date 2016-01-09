@@ -20,7 +20,7 @@ module.exports = function(app) {
 
 	app.post("/sizes", function(req, res) {
 		onConnect(function(connection) {
-			getNextSequence("sizes", connection, function(newSeq) {
+			getNextSequence("sizes", connection, function(err, newSeq) {
 				r.table("sizes").insert({
 					id: newSeq,
 					sizeName: req.body.sizeName
