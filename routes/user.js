@@ -19,7 +19,7 @@ module.exports = function(app) {
 		// attempt to create the bar
 		// first, get the latest "bars" sequence # from the "counters" table
 		onConnect(function(connection) {
-			getNextSequence("bars", connection, function(newSeq) {
+			getNextSequence("bars", connection, function(err, newSeq) {
 				r.table("bars").insert({
 					id: newSeq,
 					barName: req.body.barName,

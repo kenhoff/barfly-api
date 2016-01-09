@@ -151,7 +151,7 @@ module.exports = function(app) {
 		// console.log("inserting new product order");
 		// insert sequentially
 		onConnect(function(connection) {
-			getNextSequence("product_orders", connection, function(newSeq) {
+			getNextSequence("product_orders", connection, function(err, newSeq) {
 				r.table('product_orders').insert({
 					id: newSeq,
 					parentOrderID: parseInt(parentOrderID),

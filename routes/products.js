@@ -57,7 +57,7 @@ module.exports = function(app) {
 						// create the new product
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
-						getNextSequence("products", connection, function(newSeq) {
+						getNextSequence("products", connection, function(err, newSeq) {
 							r.table('products').insert({
 								id: newSeq,
 								productName: req.body.productName,
