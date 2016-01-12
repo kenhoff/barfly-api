@@ -5,12 +5,21 @@ var r = require('rethinkdb');
 var async = require('async');
 var request = require('request');
 
-test_sid = "AC05402430fb627014f1af0e943ae5bcb3"
-test_auth_token = "a06173ffc9c1c260f95a424e5d73c889"
+if (process.env.NODE_ENV == "production") {
+	test_sid = "AC7ce3753b21563d6ec2b75d6a06a819ac"
+	test_auth_token = "91fe1a0990c6441fcffd14c47304cfb6"
+	barflyPhoneNumber = "+17208970517"
+
+} else {
+	test_sid = "AC05402430fb627014f1af0e943ae5bcb3"
+	test_auth_token = "a06173ffc9c1c260f95a424e5d73c889"
+	barflyPhoneNumber = "+15005550006"
+}
+
 
 
 //require the Twilio module and create a REST client
-var client = require('twilio')(test_sid, test_auth_token);
+var twilioClient = require('twilio')(test_sid, test_auth_token)
 
 module.exports = function(app) {
 	app.post("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
@@ -73,7 +82,6 @@ sendRepOrder = function(barID, repOrder, cb) {
 	// first, get the bar name
 	onConnect(function(connection) {
 		r.table('bars').get(barID).run(connection, function(err, bar) {
-			// console.log(bar);
 
 			request.get({
 				url: "https://barfly.auth0.com/api/v2/users/" + repOrder.repID,
@@ -86,10 +94,15 @@ sendRepOrder = function(barID, repOrder, cb) {
 					cb(err)
 				} else if (response.statusCode < 300) {
 					// contains rep name and number
-					// console.log(JSON.parse(body))
 					createOrderStrings(repOrder.productOrders, function(err, orderStrings) {
 						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings)
-						console.log(smsString);
+						twilioClient.sendMessage({
+							from: barflyPhoneNumber,
+							to: JSON.parse(body).user_metadata.phone,
+							body: smsString
+						}, function(err, responseData) {
+							cb(err)
+						})
 					})
 				} else {
 					cb(err)
@@ -104,9 +117,9 @@ sendRepOrder = function(barID, repOrder, cb) {
 }
 
 
-assembleString =function (repName, barName, orderStrings) {
+assembleString = function(repName, barName, orderStrings) {
 	order = orderStrings.join("\n")
-	return "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\nPlease respond to your contact at " +  barName + " to let them know that you've received the order.\n\nThanks!"
+	return "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\nPlease respond to your contact at " + barName + " to let them know that you've received the order.\n\nThanks!"
 }
 
 createOrderStrings = function(productOrders, cb) {
