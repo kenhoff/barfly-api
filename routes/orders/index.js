@@ -16,8 +16,12 @@ module.exports = function(app) {
 					parentOrderID: parseInt(req.params.orderID)
 				}).without("id", "parentOrderID").run(connection, function(err, cursor) {
 					cursor.toArray(function(err, results) {
-						res.json({
-							orders: results
+						// also, get information from the parent order
+						r.table('orders').get(parseInt(req.params.orderID)).run(connection, function (err, order) {
+							res.json({
+								sent: order.sent,
+								productOrders: results
+							})
 						})
 					})
 				})

@@ -33,23 +33,20 @@ module.exports = function(app) {
 						if (err) {
 							res.status(500).send(err)
 						} else {
-							res.sendStatus(200)
+							// write the order as sent
+							r.table("orders").get(parseInt(req.params.orderID)).update({sent: true}).run(connection, function (err, result) {
+								if (!err) {
+									res.sendStatus(200)
+								} else {
+									res.status(500).send(err)
+								}
+							})
 						}
 					})
 				})
 			})
 		})
 	})
-
-	// for each product_order
-	// check to see if product exists in global DB, if not, skip it
-	// if product_order quantity is 0, skip it
-	// resolve rep for product in zip code and bar
-	// if no rep, throw res 500
-	// else, add to rep_orders
-	// after going through all product_orders and populating rep_orders
-	// go through all rep_orders and send order to each rep with twilio
-	// after all that's done, res 200. Mark order as sent.
 }
 
 sendProductOrders = function(productOrders, barID, cb) {
