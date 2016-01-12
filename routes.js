@@ -16,7 +16,7 @@ module.exports = function(app) {
 	require("./routes/bars.js")(app)
 	require("./routes/products.js")(app)
 	require("./routes/sizes.js")(app)
-	require("./routes/orders.js")(app)
+	require("./routes/orders")(app)
 	require("./routes/distributors.js")(app)
 	require("./routes/accounts.js")(app)
 	require("./routes/reps.js")(app)

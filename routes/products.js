@@ -43,7 +43,6 @@ module.exports = function(app) {
 						// just update this product
 						// If so, just update that product and append the new size.
 						results[0].productSizes.push(parseInt(req.body.productSize))
-						console.log(results[0]);
 						r.table('products').get(results[0].id).update({
 							productSizes: results[0].productSizes
 						}).run(connection, function(err, result) {
