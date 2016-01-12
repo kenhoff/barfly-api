@@ -5,12 +5,21 @@ var r = require('rethinkdb');
 var async = require('async');
 var request = require('request');
 
-test_sid = "AC05402430fb627014f1af0e943ae5bcb3"
-test_auth_token = "a06173ffc9c1c260f95a424e5d73c889"
+if (process.env.NODE_ENV == "production") {
+	test_sid = "AC7ce3753b21563d6ec2b75d6a06a819ac"
+	test_auth_token = "91fe1a0990c6441fcffd14c47304cfb6"
+	barflyPhoneNumber = "+17208970517"
+
+} else {
+	test_sid = "AC05402430fb627014f1af0e943ae5bcb3"
+	test_auth_token = "a06173ffc9c1c260f95a424e5d73c889"
+	barflyPhoneNumber = "+15005550006"
+}
+
 
 
 //require the Twilio module and create a REST client
-var client = require('twilio')(test_sid, test_auth_token);
+var twilioClient = require('twilio')(test_sid, test_auth_token)
 
 module.exports = function(app) {
 	app.post("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
@@ -24,23 +33,20 @@ module.exports = function(app) {
 						if (err) {
 							res.status(500).send(err)
 						} else {
-							res.sendStatus(200)
+							// write the order as sent
+							r.table("orders").get(parseInt(req.params.orderID)).update({sent: true}).run(connection, function (err, result) {
+								if (!err) {
+									res.sendStatus(200)
+								} else {
+									res.status(500).send(err)
+								}
+							})
 						}
 					})
 				})
 			})
 		})
 	})
-
-	// for each product_order
-	// check to see if product exists in global DB, if not, skip it
-	// if product_order quantity is 0, skip it
-	// resolve rep for product in zip code and bar
-	// if no rep, throw res 500
-	// else, add to rep_orders
-	// after going through all product_orders and populating rep_orders
-	// go through all rep_orders and send order to each rep with twilio
-	// after all that's done, res 200. Mark order as sent.
 }
 
 sendProductOrders = function(productOrders, barID, cb) {
@@ -73,7 +79,6 @@ sendRepOrder = function(barID, repOrder, cb) {
 	// first, get the bar name
 	onConnect(function(connection) {
 		r.table('bars').get(barID).run(connection, function(err, bar) {
-			// console.log(bar);
 
 			request.get({
 				url: "https://barfly.auth0.com/api/v2/users/" + repOrder.repID,
@@ -86,10 +91,15 @@ sendRepOrder = function(barID, repOrder, cb) {
 					cb(err)
 				} else if (response.statusCode < 300) {
 					// contains rep name and number
-					// console.log(JSON.parse(body))
 					createOrderStrings(repOrder.productOrders, function(err, orderStrings) {
 						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings)
-						console.log(smsString);
+						twilioClient.sendMessage({
+							from: barflyPhoneNumber,
+							to: JSON.parse(body).user_metadata.phone,
+							body: smsString
+						}, function(err, responseData) {
+							cb(err)
+						})
 					})
 				} else {
 					cb(err)
@@ -104,9 +114,9 @@ sendRepOrder = function(barID, repOrder, cb) {
 }
 
 
-assembleString =function (repName, barName, orderStrings) {
+assembleString = function(repName, barName, orderStrings) {
 	order = orderStrings.join("\n")
-	return "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\nPlease respond to your contact at " +  barName + " to let them know that you've received the order.\n\nThanks!"
+	return "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\nPlease respond to your contact at " + barName + " to let them know that you've received the order.\n\nThanks!"
 }
 
 createOrderStrings = function(productOrders, cb) {
