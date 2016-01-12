@@ -1,7 +1,5 @@
 var r = require('rethinkdb');
 
-console.log(process.env.RETHINKDB_CACERT);
-
 module.exports = function(cb) {
 	r.connect({
 		host: "aws-us-east-1-portal.9.dblayer.com",
