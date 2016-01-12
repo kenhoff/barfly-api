@@ -1,4 +1,7 @@
-require('dotenv').load()
+if (process.env.NODE_ENV != "production") {
+	require('dotenv').load()
+}
+
 var app = require('express')();
 var jwt = require('express-jwt');
 var cors = require('cors');
