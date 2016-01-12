@@ -1,10 +1,12 @@
-var jwtCheck = require('../jwtCheck.js');
-var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var jwtCheck = require('../../jwtCheck.js');
+var onConnect = require('../../onConnect.js');
+var getNextSequence = require('../../getNextSequence.js');
 var r = require('rethinkdb');
 var async = require('async');
 
 module.exports = function(app) {
+
+	require("./post.js")(app)
 
 	app.get("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
 		// TODO: check and make sure the user in the jwt is a member of this bar
@@ -47,61 +49,60 @@ module.exports = function(app) {
 
 
 	app.patch("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
-		// TODO: check and make sure the user in the jwt is a member of this bar
-		if ((req.body.orders == null) || (req.body.orders == [])) {
-			// console.log("delete all products_orders!");
-			// delete all product_orders for this order
-			removeProductOrders(req.params.orderID, function() {
-				// need to handle error
-				res.sendStatus(200)
-			})
-		} else {
-			// update all product_orders for this order
-			// (need to populate parentOrderID for all the productOrders, blah)
-			for (order of req.body.orders) {
-				order["parentOrderID"] = req.params.orderID
-			}
-			// async upsert and cull
-			async.parallel(
-				[function(cb) {
-						// upsert
-						async.each(req.body.orders, upsertProductOrder, function(err) {
-							// need to handle error
-							cb()
-						})
-					},
-					function(cb) {
-						// cull
-						cullMissingOrders(req.params.orderID, req.body.orders, function() {
-							cb()
-						})
-					}
-				],
-				function(err) {
+			// TODO: check and make sure the user in the jwt is a member of this bar
+			if ((req.body.orders == null) || (req.body.orders == [])) {
+				// console.log("delete all products_orders!");
+				// delete all product_orders for this order
+				removeProductOrders(req.params.orderID, function() {
+					// need to handle error
 					res.sendStatus(200)
+				})
+			} else {
+				// update all product_orders for this order
+				// (need to populate parentOrderID for all the productOrders, blah)
+				for (order of req.body.orders) {
+					order["parentOrderID"] = req.params.orderID
 				}
-			)
-		}
-	})
+				// async upsert and cull
+				async.parallel(
+					[function(cb) {
+							// upsert
+							async.each(req.body.orders, upsertProductOrder, function(err) {
+								// need to handle error
+								cb()
+							})
+						},
+						function(cb) {
+							// cull
+							cullMissingOrders(req.params.orderID, req.body.orders, function() {
+								cb()
+							})
+						}
+					],
+					function(err) {
+						res.sendStatus(200)
+					}
+				)
+			}
+		}),
 
-	cullMissingOrders = function(parentOrderID, orders, cb) {
-		onConnect(function(connection) {
-			r.table('product_orders').filter({
-				parentOrderID: parseInt(parentOrderID)
-			}).run(connection, function(err, cursor) {
-				cursor.toArray(function(err, results) {
-					// yay binding!
-					async.map(results, cullProductOrderIfNeeded.bind(this, orders), function(err) {
-						cb()
+
+		cullMissingOrders = function(parentOrderID, orders, cb) {
+			onConnect(function(connection) {
+				r.table('product_orders').filter({
+					parentOrderID: parseInt(parentOrderID)
+				}).run(connection, function(err, cursor) {
+					cursor.toArray(function(err, results) {
+						// yay binding!
+						async.map(results, cullProductOrderIfNeeded.bind(this, orders), function(err) {
+							cb()
+						})
 					})
 				})
 			})
-		})
-	}
+		}
 
 	cullProductOrderIfNeeded = function(updatedProductOrders, dbProductOrder, cb) {
-		// console.log("updatedProductOrders:", updatedProductOrders);
-		// console.log("dbProductOrder:", dbProductOrder);
 		for (updatedProductOrder of updatedProductOrders) {
 			if ((parseInt(updatedProductOrder["productID"]) == dbProductOrder["productID"]) && (parseInt(updatedProductOrder["productSizeID"]) == dbProductOrder["productSizeID"])) {
 				// then dbProductOrder is in updatedProductOrders - return cb()
@@ -111,7 +112,6 @@ module.exports = function(app) {
 		// however, if we get all the way through and can't find it, then we delete the dbProductOrder
 		onConnect(function(connection) {
 			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function(err, result) {
-				// console.log("deleted", dbProductOrder["id"]);
 				cb()
 			})
 		})
@@ -119,7 +119,6 @@ module.exports = function(app) {
 
 	upsertProductOrder = function(productOrder, cb) {
 		getProductOrderID(productOrder.parentOrderID, productOrder.productID, productOrder.productSizeID, function(err, id) {
-			// console.log("product order id:", id);
 			// if id >= 0, update that ID
 			if (id >= 0) {
 				updateProductOrder(id, productOrder.productQuantity, function() {
@@ -142,13 +141,11 @@ module.exports = function(app) {
 				productQuantity: parseInt(productQuantity)
 			}).run(connection, function(err, result) {
 				cb()
-					// console.log(result);
 			})
 		})
 	}
 
 	insertProductOrder = function(parentOrderID, productID, productSizeID, productQuantity, cb) {
-		// console.log("inserting new product order");
 		// insert sequentially
 		onConnect(function(connection) {
 			getNextSequence("product_orders", connection, function(err, newSeq) {
@@ -160,7 +157,6 @@ module.exports = function(app) {
 					productQuantity: parseInt(productQuantity)
 				}).run(connection, function(err, result) {
 					cb()
-						// console.log(result);
 				})
 			})
 		})
@@ -174,12 +170,9 @@ module.exports = function(app) {
 				productSizeID: parseInt(productSizeID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
-					// console.log("results:", results);
 					if (results.length == 1) {
-						// console.log("returning", results[0]["id"]);
 						cb(null, results[0]["id"])
 					} else if (results.length == 0) {
-						// console.log("returning", -1);
 						cb(null, -1)
 					} else {
 						cb("err")

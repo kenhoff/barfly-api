@@ -13,7 +13,6 @@ module.exports = function(app) {
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
-					console.log(results);
 					res.json(results)
 				})
 			})
