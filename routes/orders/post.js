@@ -29,27 +29,39 @@ module.exports = function(app) {
 				parentOrderID: parseInt(req.params.orderID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, productOrders) {
-					sendProductOrders(productOrders, parseInt(req.params.barID), function(err) {
-						if (err) {
-							res.status(500).send(err)
-						} else {
-							// write the order as sent
-							r.table("orders").get(parseInt(req.params.orderID)).update({sent: true}).run(connection, function (err, result) {
-								if (!err) {
-									res.sendStatus(200)
-								} else {
-									res.status(500).send(err)
-								}
-							})
+					// look up user info, include it with productOrders
+
+					request.get({
+						url: "https://barfly.auth0.com/api/v2/users/" + req.user.user_id,
+						headers: {
+							"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
 						}
+					}, function(err, response, user) {
+						sendProductOrders(productOrders, parseInt(req.params.barID), JSON.parse(user), function(err) {
+							if (err) {
+								res.status(500).send(err)
+							} else {
+								// write the order as sent
+								r.table("orders").get(parseInt(req.params.orderID)).update({
+									sent: true
+								}).run(connection, function(err, result) {
+									if (!err) {
+										res.sendStatus(200)
+									} else {
+										res.status(500).send(err)
+									}
+								})
+							}
+						})
 					})
+
 				})
 			})
 		})
 	})
 }
 
-sendProductOrders = function(productOrders, barID, cb) {
+sendProductOrders = function(productOrders, barID, user, cb) {
 	err = null
 	cullInvalidProductOrders(productOrders, function(productOrders) {
 		repOrders = []
@@ -58,7 +70,7 @@ sendProductOrders = function(productOrders, barID, cb) {
 				cb(err)
 			} else {
 				// now, for each rep order, send the order!
-				async.each(repOrders, sendRepOrder.bind(this, barID), function(err) {
+				async.each(repOrders, sendRepOrder.bind(this, barID, user), function(err) {
 					cb()
 				})
 
@@ -67,7 +79,7 @@ sendProductOrders = function(productOrders, barID, cb) {
 	})
 }
 
-sendRepOrder = function(barID, repOrder, cb) {
+sendRepOrder = function(barID, user, repOrder, cb) {
 	// console.log(repOrder);
 	// okay, here's what we'd like to send to the reps:
 	// Hi <<rep name>>, here's the latest order for <<bar name>>.
@@ -84,20 +96,20 @@ sendRepOrder = function(barID, repOrder, cb) {
 				url: "https://barfly.auth0.com/api/v2/users/" + repOrder.repID,
 				headers: {
 					"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
-				},
-				form: {}
+				}
 			}, function(err, response, body) {
 				if (err) {
 					cb(err)
 				} else if (response.statusCode < 300) {
 					// contains rep name and number
 					createOrderStrings(repOrder.productOrders, function(err, orderStrings) {
-						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings)
+						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings, user)
 						twilioClient.sendMessage({
 							from: barflyPhoneNumber,
 							to: JSON.parse(body).user_metadata.phone,
 							body: smsString
 						}, function(err, responseData) {
+							console.log(responseData.body);
 							cb(err)
 						})
 					})
@@ -114,9 +126,15 @@ sendRepOrder = function(barID, repOrder, cb) {
 }
 
 
-assembleString = function(repName, barName, orderStrings) {
+assembleString = function(repName, barName, orderStrings, user) {
 	order = orderStrings.join("\n")
-	return "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\nPlease respond to your contact at " + barName + " to let them know that you've received the order.\n\nThanks!"
+	smsString = "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\n"
+	if (("user_metadata" in user) && ("phone" in user.user_metadata)) {
+		smsString += "Please respond to " + user.given_name + " ("+ user.user_metadata.phone + ") to let them know that you've received the order.\n\nThanks!"
+	} else {
+		smsString += "Please respond to " + user.given_name + " to let them know that you've received the order.\n\nThanks!"
+	}
+	return smsString
 }
 
 createOrderStrings = function(productOrders, cb) {
