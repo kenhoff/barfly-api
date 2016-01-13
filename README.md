@@ -5,7 +5,7 @@ Thoughts on API routes
 
 ## API Routes
 - `GET /user` - gets information about the currently signed in user (checks the jwt)
-- `POST /user` - updates information on the currently signed in user (things like name updates, etc)
+- `PATCH /user` - updates information on the currently signed in user (things like name updates, etc)
   - `GET /user/bars` - gets all bars for the user in the token
   - `POST /user/bars` - creates a new bar with name, zip code, and adds the bar to the user in the token
 
@@ -13,7 +13,7 @@ Thoughts on API routes
 - `POST /bars` - creates a new bar with a name and zip code (admin only)
   - `GET /bars/:barID` - gets info about a bar, provided that the user has the bar in their app_metadata
   - `POST /bars/:barID` - updates info about a bar, provided that the user has the bar in their app_metadata
-  - <!-- memberships -->
+<!-- memberships -->
 
 - `GET /bars/:barID/users` - gets all users for that bar, with roles (provided the user is in the bar, or is an admin)
 - `POST /bars/:barID/users` - adds a new user to that bar, with role (provided the user is in the bar, or is an admin)
@@ -52,6 +52,8 @@ Thoughts on API routes
 - `orders` - orders from a bar. each `order` contains a `bar` (barID), `created_by` (userID), `sent_by` (userID), `created_at` (datetime), `sent_at` (datetime)
 - `product_orders` - individual product orders. each one contains a product ID, product size, product count, and parent `order`.
 - <!-- - `distributor_orders` - orders to individual distributors. each `distributor_order` contains an `order` that it's associated with, an `account` that it's ordered through (which contains a `distributor` and a `rep`), as well as a list of `products` (with count and size). -->
+
+
 
 
 
