@@ -27,8 +27,8 @@ module.exports = function(app) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
 				onConnect.connect(function(err, connection) {
-					r.table("orders").getAll(parseInt(req.params.barID), {
-						index: "barID"
+					r.table("orders").filter({
+						barID: parseInt(req.params.barID)
 					}).run(connection, function(err, cursor) {
 						cursor.toArray(function(err, results) {
 							orders = []
