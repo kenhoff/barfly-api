@@ -2,7 +2,8 @@ var jwtCheck = require('../jwtCheck.js');
 // hacky and gross. any way around this?
 
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
+var ensureTableExists = require('../ensureTableExists.js');
 var r = require('rethinkdb');
 
 var request = require('request');
@@ -62,17 +63,17 @@ module.exports = function(app) {
 		// validate name and zipcode
 		// attempt to create the bar
 		// first, get the latest "bars" sequence # from the "counters" table
-		onConnect(function(connection) {
-			getNextSequence("bars", connection, function(err, newSeq) {
+		onConnect.connect(function(err, connection) {
+			getNextCounter("bars", connection, function(err, newCounter) {
 				r.table("bars").insert({
-					id: newSeq,
+					id: newCounter,
 					barName: req.body.barName,
 					zipCode: parseInt(req.body.zipCode)
 				}).run(connection, function(err, result) {
-					newBarID = newSeq
+					newBarID = newCounter
 					addUserToBar(req.user.user_id, newBarID, function() {
 						res.send({
-							id: newSeq,
+							id: newCounter,
 							barName: req.body.barName,
 							zipCode: parseInt(req.body.zipCode)
 						})
@@ -81,4 +82,47 @@ module.exports = function(app) {
 			})
 		})
 	})
+
+	addUserToBar = function(userID, barID, cb) {
+		onConnect.connect(function(err, connection) {
+			r.table("bar_memberships").filter({
+				userID: userID
+			}).filter({
+				barID: barID
+			}).run(connection, function(err, cursor) {
+				cursor.toArray(function(err, results) {
+					if (results.length == 0) {
+						r.table("bar_memberships").insert({
+							barID: barID,
+							userID: userID,
+							role: "manager"
+						}).run(connection, function(err, result) {
+							if (!err) {
+								cb()
+							} else {
+								// throw something?
+							}
+						})
+					}
+				})
+			})
+		})
+	}
+
+	getUserBars = function(userID, cb) {
+		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
+		onConnect.connect(function(err, connection) {
+			r.table("bar_memberships").filter({
+				userID: userID
+			}).withFields("barID").run(connection, function(err, cursor) {
+				cursor.toArray(function(err, results) {
+					bars = []
+					for (var i = 0; i < results.length; i++) {
+						bars.push(results[i].barID)
+					}
+					cb(bars)
+				})
+			})
+		})
+	}
 }

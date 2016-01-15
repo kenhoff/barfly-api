@@ -1,7 +1,7 @@
 var r = require('rethinkdb');
 
-module.exports = function(cb) {
-	r.connect({
+if (process.env.NODE_ENV == "production") {
+	opts = {
 		host: "aws-us-east-1-portal.9.dblayer.com",
 		port: 10384,
 		authKey: "auwvteoiuclrdkxjEofivucXKYESOalvkjcetdlfxkm",
@@ -9,11 +9,13 @@ module.exports = function(cb) {
 		ssl: {
 			ca: new Buffer(process.env.RETHINKDB_CACERT)
 		}
-	}, function(err, conn) {
-		if (!err) {
-			cb(conn)
-		} else {
-			throw "Database connection error"
-		}
+	}
+} else {
+	opts = {}
+}
+
+module.exports.connect = function(cb) {
+	r.connect(opts, function(err, conn) {
+			cb(err, conn)
 	})
 }

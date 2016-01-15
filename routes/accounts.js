@@ -1,12 +1,12 @@
 var r = require('rethinkdb');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 
 module.exports = function(app) {
 	app.get("/accounts", jwtCheck, function(req, res) {
 		// if contains search params, search for that with filter. else, return all
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table('accounts').filter({
 				barID: parseInt(req.query.barID),
 				distributorID: parseInt(req.query.distributorID)
@@ -23,8 +23,8 @@ module.exports = function(app) {
 	})
 
 	app.post("/accounts", jwtCheck, function(req, res) {
-		onConnect(function(connection) {
-			getNextSequence("accounts", connection, function(err, newSeq) {
+		onConnect.connect(function(err, connection) {
+			getNextCounter("accounts", connection, function(err, newCounter) {
 				// should really probably check to see if there's already an account in here...
 				r.table('accounts').insert({
 					barID: parseInt(req.body.barID),

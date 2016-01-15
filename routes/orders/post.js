@@ -1,6 +1,6 @@
 var jwtCheck = require('../../jwtCheck.js');
 var onConnect = require('../../onConnect.js');
-var getNextSequence = require('../../getNextSequence.js');
+var getNextCounter = require('../../getNextCounter.js');
 var r = require('rethinkdb');
 var async = require('async');
 var request = require('request');
@@ -23,7 +23,7 @@ var twilioClient = require('twilio')(test_sid, test_auth_token)
 
 module.exports = function(app) {
 	app.post("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			// look up all product_orders
 			r.table("product_orders").filter({
 				parentOrderID: parseInt(req.params.orderID)
@@ -89,7 +89,7 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 	// Thanks!
 
 	// first, get the bar name
-	onConnect(function(connection) {
+	onConnect.connect(function(err, connection) {
 		r.table('bars').get(barID).run(connection, function(err, bar) {
 
 			request.get({
@@ -158,7 +158,7 @@ attachProductNameAndSize = function(productOrder, cb) {
 
 getProductName = function(productID, cb) {
 
-	onConnect(function(connection) {
+	onConnect.connect(function(err, connection) {
 		r.table("products").get(productID).run(connection, function(err, result) {
 			cb(err, result.productName)
 		})
@@ -166,7 +166,7 @@ getProductName = function(productID, cb) {
 }
 
 getProductSizeName = function(productSizeID, cb) {
-	onConnect(function(connection) {
+	onConnect.connect(function(err, connection) {
 		r.table("sizes").get(productSizeID).run(connection, function(err, result) {
 			cb(err, result.sizeName)
 		})
@@ -175,7 +175,7 @@ getProductSizeName = function(productSizeID, cb) {
 
 addProductOrderToRepOrders = function(barID, repOrders, productOrder, cb) {
 	// first, resolve the productOrder, so we know which repOrder to add the productOrder to.
-	onConnect(function(connection) {
+	onConnect.connect(function(err, connection) {
 		// first, what zip code is the bar in?
 		r.table("bars").get(barID).run(connection, function(err, bar) {
 			// next, look up the distributor that carries the product in this zip code.
@@ -236,7 +236,7 @@ cullInvalidProductOrders = function(productOrders, cb) {
 }
 
 removeNonexistentProducts = function(productOrder, cb) {
-	onConnect(function(connection) {
+	onConnect.connect(function(err, connection) {
 		r.table("products").get(productOrder.productID).run(connection, function(err, result) {
 			if (result) {
 				cb(true)

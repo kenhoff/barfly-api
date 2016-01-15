@@ -1,7 +1,7 @@
 // hacky and gross. any way around this?
 var jwtCheck = require('../jwtCheck.js');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var r = require('rethinkdb');
 
 
@@ -10,7 +10,7 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(barID) > -1) {
-				onConnect(function(connection) {
+				onConnect.connect(function(err, connection) {
 					r.table("bars").get(parseInt(req.params.barID)).run(connection, function(err, result) {
 						res.send(result)
 					})
@@ -26,9 +26,9 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
-				onConnect(function(connection) {
-					r.table("orders").getAll(parseInt(req.params.barID), {
-						index: "barID"
+				onConnect.connect(function(err, connection) {
+					r.table("orders").filter({
+						barID: parseInt(req.params.barID)
 					}).run(connection, function(err, cursor) {
 						cursor.toArray(function(err, results) {
 							orders = []
@@ -51,10 +51,10 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
-				onConnect(function(connection) {
-					getNextSequence("orders", connection, function(err, newSeq) {
+				onConnect.connect(function(err, connection) {
+					getNextCounter("orders", connection, function(err, newCounter) {
 						r.table("orders").insert({
-							id: newSeq,
+							id: newCounter,
 							barID: parseInt(req.params.barID)
 						}, {
 							returnChanges: true

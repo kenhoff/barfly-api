@@ -1,6 +1,6 @@
 var jwtCheck = require('../../jwtCheck.js');
 var onConnect = require('../../onConnect.js');
-var getNextSequence = require('../../getNextSequence.js');
+var getNextCounter = require('../../getNextCounter.js');
 var r = require('rethinkdb');
 var async = require('async');
 
@@ -11,7 +11,7 @@ module.exports = function(app) {
 	app.get("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
 		// TODO: check and make sure the user in the jwt is a member of this bar
 		// get all productOrders with a given parentOrderID, zip them up without IDs
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 				r.table('product_orders').filter({
 					parentOrderID: parseInt(req.params.orderID)
 				}).without("id", "parentOrderID").run(connection, function(err, cursor) {
@@ -92,7 +92,7 @@ module.exports = function(app) {
 
 
 		cullMissingOrders = function(parentOrderID, orders, cb) {
-			onConnect(function(connection) {
+			onConnect.connect(function(err, connection) {
 				r.table('product_orders').filter({
 					parentOrderID: parseInt(parentOrderID)
 				}).run(connection, function(err, cursor) {
@@ -114,7 +114,7 @@ module.exports = function(app) {
 			}
 		}
 		// however, if we get all the way through and can't find it, then we delete the dbProductOrder
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function(err, result) {
 				cb()
 			})
@@ -140,7 +140,7 @@ module.exports = function(app) {
 	}
 
 	updateProductOrder = function(productOrderID, productQuantity, cb) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table('product_orders').get(parseInt(productOrderID)).update({
 				productQuantity: parseInt(productQuantity)
 			}).run(connection, function(err, result) {
@@ -151,10 +151,10 @@ module.exports = function(app) {
 
 	insertProductOrder = function(parentOrderID, productID, productSizeID, productQuantity, cb) {
 		// insert sequentially
-		onConnect(function(connection) {
-			getNextSequence("product_orders", connection, function(err, newSeq) {
+		onConnect.connect(function(err, connection) {
+			getNextCounter("product_orders", connection, function(err, newCounter) {
 				r.table('product_orders').insert({
-					id: newSeq,
+					id: newCounter,
 					parentOrderID: parseInt(parentOrderID),
 					productID: parseInt(productID),
 					productSizeID: parseInt(productSizeID),
@@ -167,7 +167,7 @@ module.exports = function(app) {
 	}
 
 	getProductOrderID = function(parentOrderID, productID, productSizeID, cb) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table('product_orders').filter({
 				parentOrderID: parseInt(parentOrderID),
 				productID: parseInt(productID),
@@ -188,7 +188,7 @@ module.exports = function(app) {
 
 	removeProductOrders = function(parentOrderID, cb) {
 		// find all product_orders with the parentOrderID and remove them.
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table('product_orders').filter({
 				parentOrderID: parseInt(parentOrderID)
 			}).delete().run(connection, function(err, result) {

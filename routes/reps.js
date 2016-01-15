@@ -1,6 +1,6 @@
 var r = require('rethinkdb');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 var request = require('request');
 
@@ -8,7 +8,7 @@ module.exports = function(app) {
 	app.get("/reps", function(req, res) {
 		// get all reps with a given distributor ID
 		// which means, get all *distributor_memberships* where distributor == query param
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("distributor_memberships").filter({
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
@@ -67,7 +67,7 @@ module.exports = function(app) {
 	})
 
 	app.post("/reps/:repID/memberships", jwtCheck, function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			// really should check and see if there's already a membership for this rep and distributor...
 			r.table("distributor_memberships").insert({
 				repID: req.params.repID,
