@@ -10,7 +10,7 @@ describe("ensureTableExists", function() {
 
 	before(function() {
 		sinon.stub(onConnect, "connect", function(cb) {
-			cb("connection object")
+			cb(null, "connection object")
 		})
 	})
 
@@ -143,7 +143,22 @@ describe("ensureTableExists", function() {
 		})
 
 	})
-	it("calls back with 'Database connection error' if onConnect can't connect to the database")
+	it("calls back with 'Database connection error' if onConnect can't connect to the database", function (done) {
+		onConnect.connect.restore()
+		sinon.stub(onConnect, "connect", function (cb) {
+			cb("Database connection error")
+		})
+		ensureTableExists.ensureTableExists('testTable1', function (err) {
+			assert(err == "Database connection error", "Didn't get right database connection error")
+			onConnect.connect.restore()
+			sinon.stub(onConnect, "connect", function(cb) {
+				cb(null, "connection object")
+			})
+			done()
+		})
+	})
+
+
 	it("bubbles up tableList err", function(done) {
 		sinon.stub(r, "tableList", function() {
 			return {
