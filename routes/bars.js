@@ -52,9 +52,9 @@ module.exports = function(app) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
 				onConnect.connect(function(err, connection) {
-					getNextCounter("orders", connection, function(err, newSeq) {
+					getNextCounter("orders", connection, function(err, newCounter) {
 						r.table("orders").insert({
-							id: newSeq,
+							id: newCounter,
 							barID: parseInt(req.params.barID)
 						}, {
 							returnChanges: true

@@ -18,13 +18,13 @@ module.exports = function(app) {
 
 	app.post("/distributors", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
-			getNextCounter("distributors", connection, function(err, newSeq) {
+			getNextCounter("distributors", connection, function(err, newCounter) {
 				r.table("distributors").insert({
-					id: newSeq,
+					id: newCounter,
 					distributorName: req.body.distributorName
 				}).run(connection, function(err, result) {
 					res.json({
-						distributorID: newSeq
+						distributorID: newCounter
 					})
 				})
 			})

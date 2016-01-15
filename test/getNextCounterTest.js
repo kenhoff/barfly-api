@@ -30,10 +30,10 @@ describe('getNextCounter', function() {
 		})
 	})
 
-	it.skip('should call back with a new sequence when everything is provided', function(done) {
-		getNextCounter("testing", connectionObject, function(err, newSeq) {
+	it.skip('should call back with a new counter when everything is provided', function(done) {
+		getNextCounter("testing", connectionObject, function(err, newCounter) {
 			assert(!err, "cb was called with an err")
-			assert((newSeq == 10), "newSeq != 10")
+			assert((newCounter == 10), "newCounter != 10")
 			done()
 		})
 	})
@@ -91,16 +91,16 @@ describe('getNextCounter', function() {
 				}
 			}
 		})
-		getNextCounter("testCounter", connectionObject, function(err, newSeq) {
+		getNextCounter("testCounter", connectionObject, function(err, newCounter) {
 			// should really also assert that update was called with the correct args
 			assert(!err)
-			assert(newSeq == 11, "new sequence was not incremented correctly")
+			assert(newCounter == 11, "new counter was not incremented correctly")
 			r.table.restore()
 			done()
 		})
 	})
 
-	it("if sequence doesn't exist, creates it, and calls back with 1", function (done) {
+	it("if counter doesn't exist, creates it, and calls back with 1", function (done) {
 		sinon.stub(r, "table").returns({
 			get: function() {
 				return {
@@ -130,10 +130,10 @@ describe('getNextCounter', function() {
 				}
 			}
 		})
-		getNextCounter("testCounter", connectionObject, function (err, newSeq) {
+		getNextCounter("testCounter", connectionObject, function (err, newCounter) {
 			// again, should really assert that get, insert, and update were all called with the correct params
 			assert(!err)
-			assert(newSeq == 1)
+			assert(newCounter == 1)
 			r.table.restore()
 			done()
 		})

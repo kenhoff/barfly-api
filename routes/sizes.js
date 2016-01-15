@@ -20,12 +20,12 @@ module.exports = function(app) {
 
 	app.post("/sizes", function(req, res) {
 		onConnect.connect(function(err, connection) {
-			getNextCounter("sizes", connection, function(err, newSeq) {
+			getNextCounter("sizes", connection, function(err, newCounter) {
 				r.table("sizes").insert({
-					id: newSeq,
+					id: newCounter,
 					sizeName: req.body.sizeName
 				}).run(connection, function(err, result) {
-					res.json(newSeq)
+					res.json(newCounter)
 				})
 			})
 		})

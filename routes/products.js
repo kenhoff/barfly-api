@@ -56,15 +56,15 @@ module.exports = function(app) {
 						// create the new product
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
-						getNextCounter("products", connection, function(err, newSeq) {
+						getNextCounter("products", connection, function(err, newCounter) {
 							r.table('products').insert({
-								id: newSeq,
+								id: newCounter,
 								productName: req.body.productName,
 								productSizes: [parseInt(req.body.productSize)]
 							}).run(connection, function(err, result) {
 								if (!err) {
 									res.json({
-										productID: newSeq
+										productID: newCounter
 									})
 								}
 							})

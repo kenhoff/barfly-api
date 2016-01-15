@@ -15,8 +15,8 @@ module.exports = function(name, connection, cb) {
 			}, {
 				returnChanges: true
 			}).run(connection, function(err, result) {
-				newSeq = result["changes"][0]["new_val"]["seq"]
-				cb(err, newSeq)
+				newCounter = result["changes"][0]["new_val"]["seq"]
+				cb(err, newCounter)
 			})
 		})
 	}

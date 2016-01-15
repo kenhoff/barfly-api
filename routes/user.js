@@ -64,16 +64,16 @@ module.exports = function(app) {
 		// attempt to create the bar
 		// first, get the latest "bars" sequence # from the "counters" table
 		onConnect.connect(function(err, connection) {
-			getNextCounter("bars", connection, function(err, newSeq) {
+			getNextCounter("bars", connection, function(err, newCounter) {
 				r.table("bars").insert({
-					id: newSeq,
+					id: newCounter,
 					barName: req.body.barName,
 					zipCode: parseInt(req.body.zipCode)
 				}).run(connection, function(err, result) {
-					newBarID = newSeq
+					newBarID = newCounter
 					addUserToBar(req.user.user_id, newBarID, function() {
 						res.send({
-							id: newSeq,
+							id: newCounter,
 							barName: req.body.barName,
 							zipCode: parseInt(req.body.zipCode)
 						})
