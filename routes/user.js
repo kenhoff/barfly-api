@@ -62,7 +62,7 @@ module.exports = function(app) {
 		// validate name and zipcode
 		// attempt to create the bar
 		// first, get the latest "bars" sequence # from the "counters" table
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			getNextSequence("bars", connection, function(err, newSeq) {
 				r.table("bars").insert({
 					id: newSeq,
@@ -83,7 +83,7 @@ module.exports = function(app) {
 	})
 
 	addUserToBar = function(userID, barID, cb) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("bar_memberships").getAll(userID, {
 				index: "userID"
 			}).filter({
@@ -110,7 +110,7 @@ module.exports = function(app) {
 
 	getUserBars = function(userID, cb) {
 		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("bar_memberships").getAll(userID, {
 				index: "userID"
 			}).withFields("barID").run(connection, function(err, cursor) {

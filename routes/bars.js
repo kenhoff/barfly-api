@@ -10,7 +10,7 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(barID) > -1) {
-				onConnect(function(connection) {
+				onConnect.connect(function(err, connection) {
 					r.table("bars").get(parseInt(req.params.barID)).run(connection, function(err, result) {
 						res.send(result)
 					})
@@ -26,7 +26,7 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
-				onConnect(function(connection) {
+				onConnect.connect(function(err, connection) {
 					r.table("orders").getAll(parseInt(req.params.barID), {
 						index: "barID"
 					}).run(connection, function(err, cursor) {
@@ -51,7 +51,7 @@ module.exports = function(app) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
-				onConnect(function(connection) {
+				onConnect.connect(function(err, connection) {
 					getNextSequence("orders", connection, function(err, newSeq) {
 						r.table("orders").insert({
 							id: newSeq,

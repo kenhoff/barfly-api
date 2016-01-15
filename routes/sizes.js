@@ -5,7 +5,7 @@ var r = require('rethinkdb');
 
 module.exports = function(app) {
 	app.get("/sizes", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("sizes").run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					response = []
@@ -19,7 +19,7 @@ module.exports = function(app) {
 	})
 
 	app.post("/sizes", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			getNextSequence("sizes", connection, function(err, newSeq) {
 				r.table("sizes").insert({
 					id: newSeq,
@@ -32,7 +32,7 @@ module.exports = function(app) {
 	})
 
 	app.get("/sizes/:sizeID", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("sizes").get(parseInt(req.params.sizeID)).run(connection, function(err, result) {
 				res.json(result)
 			})
