@@ -1,6 +1,6 @@
 var r = require('rethinkdb');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 
 
@@ -18,7 +18,7 @@ module.exports = function(app) {
 
 	app.post("/distributors", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
-			getNextSequence("distributors", connection, function(err, newSeq) {
+			getNextCounter("distributors", connection, function(err, newSeq) {
 				r.table("distributors").insert({
 					id: newSeq,
 					distributorName: req.body.distributorName

@@ -1,6 +1,6 @@
 var r = require('rethinkdb');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 
 module.exports = function(app) {
@@ -24,7 +24,7 @@ module.exports = function(app) {
 
 	app.post("/accounts", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
-			getNextSequence("accounts", connection, function(err, newSeq) {
+			getNextCounter("accounts", connection, function(err, newSeq) {
 				// should really probably check to see if there's already an account in here...
 				r.table('accounts').insert({
 					barID: parseInt(req.body.barID),

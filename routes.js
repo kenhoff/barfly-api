@@ -2,7 +2,7 @@ var r = require('rethinkdb');
 var fs = require('fs');
 
 var onConnect = require('./onConnect.js');
-var getNextSequence = require('./getNextSequence.js');
+var getNextCounter = require('./getNextCounter.js');
 
 var jwtCheck = require('./jwtCheck.js');
 

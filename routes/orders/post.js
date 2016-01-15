@@ -1,6 +1,6 @@
 var jwtCheck = require('../../jwtCheck.js');
 var onConnect = require('../../onConnect.js');
-var getNextSequence = require('../../getNextSequence.js');
+var getNextCounter = require('../../getNextCounter.js');
 var r = require('rethinkdb');
 var async = require('async');
 var request = require('request');

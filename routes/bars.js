@@ -1,7 +1,7 @@
 // hacky and gross. any way around this?
 var jwtCheck = require('../jwtCheck.js');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var r = require('rethinkdb');
 
 
@@ -52,7 +52,7 @@ module.exports = function(app) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
 				onConnect.connect(function(err, connection) {
-					getNextSequence("orders", connection, function(err, newSeq) {
+					getNextCounter("orders", connection, function(err, newSeq) {
 						r.table("orders").insert({
 							id: newSeq,
 							barID: parseInt(req.params.barID)

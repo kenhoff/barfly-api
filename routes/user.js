@@ -2,7 +2,7 @@ var jwtCheck = require('../jwtCheck.js');
 // hacky and gross. any way around this?
 
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var ensureTableExists = require('../ensureTableExists.js');
 var r = require('rethinkdb');
 
@@ -64,7 +64,7 @@ module.exports = function(app) {
 		// attempt to create the bar
 		// first, get the latest "bars" sequence # from the "counters" table
 		onConnect.connect(function(err, connection) {
-			getNextSequence("bars", connection, function(err, newSeq) {
+			getNextCounter("bars", connection, function(err, newSeq) {
 				r.table("bars").insert({
 					id: newSeq,
 					barName: req.body.barName,

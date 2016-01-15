@@ -1,9 +1,9 @@
 var assert = require('chai').assert;
 var sinon = require('sinon');
 
-var getNextSequence = require('../getNextSequence');
+var getNextCounter = require('../getNextCounter');
 
-describe('getNextSequence', function() {
+describe('getNextCounter', function() {
 	var r = require('rethinkdb');
 	connectionObject = {
 		connection: ["stuff", "goes", "here"]
@@ -31,7 +31,7 @@ describe('getNextSequence', function() {
 	})
 
 	it.skip('should call back with a new sequence when everything is provided', function(done) {
-		getNextSequence("testing", connectionObject, function(err, newSeq) {
+		getNextCounter("testing", connectionObject, function(err, newSeq) {
 			assert(!err, "cb was called with an err")
 			assert((newSeq == 10), "newSeq != 10")
 			done()
@@ -40,7 +40,7 @@ describe('getNextSequence', function() {
 
 	it("should throw an err when anything but a string is provided as the 1st argument", function(done) {
 		try {
-			getNextSequence({
+			getNextCounter({
 				someWeird: "object"
 			}, connectionObject, function(err, result) {})
 		} catch (e) {
@@ -51,7 +51,7 @@ describe('getNextSequence', function() {
 
 	it("should throw an err when anything but an object is provided as the 2nd argument", function(done) {
 		try {
-			getNextSequence("testing", "asdfasdfasdf", function(err, result) {})
+			getNextCounter("testing", "asdfasdfasdf", function(err, result) {})
 		} catch (e) {
 			assert(e == "Connection object not provided as 2nd argument")
 			done()
@@ -60,7 +60,7 @@ describe('getNextSequence', function() {
 
 	it("should throw an err when a callback isn't provided as the 3rd argument", function(done) {
 		try {
-			getNextSequence("testing", connectionObject)
+			getNextCounter("testing", connectionObject)
 		} catch (e) {
 			assert(e == "Callback not provided as 3rd argument")
 			done()
@@ -91,7 +91,7 @@ describe('getNextSequence', function() {
 				}
 			}
 		})
-		getNextSequence("testCounter", connectionObject, function(err, newSeq) {
+		getNextCounter("testCounter", connectionObject, function(err, newSeq) {
 			// should really also assert that update was called with the correct args
 			assert(!err)
 			assert(newSeq == 11, "new sequence was not incremented correctly")
@@ -130,7 +130,7 @@ describe('getNextSequence', function() {
 				}
 			}
 		})
-		getNextSequence("testCounter", connectionObject, function (err, newSeq) {
+		getNextCounter("testCounter", connectionObject, function (err, newSeq) {
 			// again, should really assert that get, insert, and update were all called with the correct params
 			assert(!err)
 			assert(newSeq == 1)

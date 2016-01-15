@@ -1,6 +1,6 @@
 var jwtCheck = require('../../jwtCheck.js');
 var onConnect = require('../../onConnect.js');
-var getNextSequence = require('../../getNextSequence.js');
+var getNextCounter = require('../../getNextCounter.js');
 var r = require('rethinkdb');
 var async = require('async');
 
@@ -152,7 +152,7 @@ module.exports = function(app) {
 	insertProductOrder = function(parentOrderID, productID, productSizeID, productQuantity, cb) {
 		// insert sequentially
 		onConnect.connect(function(err, connection) {
-			getNextSequence("product_orders", connection, function(err, newSeq) {
+			getNextCounter("product_orders", connection, function(err, newSeq) {
 				r.table('product_orders').insert({
 					id: newSeq,
 					parentOrderID: parseInt(parentOrderID),
