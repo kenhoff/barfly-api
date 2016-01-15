@@ -5,21 +5,8 @@ var r = require('rethinkdb');
 var async = require('async');
 var request = require('request');
 
-if (process.env.NODE_ENV == "production") {
-	test_sid = "AC7ce3753b21563d6ec2b75d6a06a819ac"
-	test_auth_token = "91fe1a0990c6441fcffd14c47304cfb6"
-	barflyPhoneNumber = "+17208970517"
-
-} else {
-	test_sid = "AC05402430fb627014f1af0e943ae5bcb3"
-	test_auth_token = "a06173ffc9c1c260f95a424e5d73c889"
-	barflyPhoneNumber = "+15005550006"
-}
-
-
-
 //require the Twilio module and create a REST client
-var twilioClient = require('twilio')(test_sid, test_auth_token)
+var twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN)
 
 module.exports = function(app) {
 	app.post("/bars/:barID/orders/:orderID", jwtCheck, function(req, res) {
@@ -105,7 +92,7 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 					createOrderStrings(repOrder.productOrders, function(err, orderStrings) {
 						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings, user)
 						twilioClient.sendMessage({
-							from: barflyPhoneNumber,
+							from: process.env.TWILIO_NUMBER,
 							to: JSON.parse(body).user_metadata.phone,
 							body: smsString
 						}, function(err, responseData) {

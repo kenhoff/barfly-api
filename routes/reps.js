@@ -57,11 +57,11 @@ module.exports = function(app) {
 			}
 		}, function(err, response, body) {
 			if (err) {
-				res.sendStatus(500)
+				res.status(500).send(err)
 			} else if (response.statusCode < 300) {
 				res.json(JSON.parse(body))
 			} else {
-				res.sendStatus(500)
+				res.status(500).send(err)
 			}
 		})
 	})
