@@ -1,11 +1,11 @@
 var jwtCheck = require('../jwtCheck.js');
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 var r = require('rethinkdb');
 
 module.exports = function(app) {
 	app.get("/sizes", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("sizes").run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					response = []
@@ -19,20 +19,20 @@ module.exports = function(app) {
 	})
 
 	app.post("/sizes", function(req, res) {
-		onConnect(function(connection) {
-			getNextSequence("sizes", connection, function(err, newSeq) {
+		onConnect.connect(function(err, connection) {
+			getNextCounter("sizes", connection, function(err, newCounter) {
 				r.table("sizes").insert({
-					id: newSeq,
+					id: newCounter,
 					sizeName: req.body.sizeName
 				}).run(connection, function(err, result) {
-					res.json(newSeq)
+					res.json(newCounter)
 				})
 			})
 		})
 	})
 
 	app.get("/sizes/:sizeID", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("sizes").get(parseInt(req.params.sizeID)).run(connection, function(err, result) {
 				res.json(result)
 			})

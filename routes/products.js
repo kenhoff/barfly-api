@@ -2,14 +2,14 @@ var jwtCheck = require('../jwtCheck.js');
 // hacky and gross. any way around this?
 
 var onConnect = require('../onConnect.js');
-var getNextSequence = require('../getNextSequence.js');
+var getNextCounter = require('../getNextCounter.js');
 
 var r = require('rethinkdb');
 
 
 module.exports = function(app) {
 	app.get("/products", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("products").withFields('id').run(connection, function(err, cursor) {
 				cursor.toArray(function(err, products) {
 					response = []
@@ -23,7 +23,7 @@ module.exports = function(app) {
 	})
 
 	app.get("/products/:productID", function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("products").get(parseInt(req.params.productID)).run(connection, function(err, product) {
 				res.json(product)
 			})
@@ -31,7 +31,7 @@ module.exports = function(app) {
 	})
 
 	app.post("/products", jwtCheck, function(req, res) {
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			// check if the name inserted is exactly the same as the name of a product in the DB.
 			r.table('products').filter({
 				productName: req.body.productName
@@ -56,15 +56,15 @@ module.exports = function(app) {
 						// create the new product
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
-						getNextSequence("products", connection, function(err, newSeq) {
+						getNextCounter("products", connection, function(err, newCounter) {
 							r.table('products').insert({
-								id: newSeq,
+								id: newCounter,
 								productName: req.body.productName,
 								productSizes: [parseInt(req.body.productSize)]
 							}).run(connection, function(err, result) {
 								if (!err) {
 									res.json({
-										productID: newSeq
+										productID: newCounter
 									})
 								}
 							})
@@ -77,7 +77,7 @@ module.exports = function(app) {
 
 	app.get("/products/:productID/zipcodes/:zipcode/distributor", function(req, res) {
 		// look up in zipcode_product_distributor table
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("zipcode_product_distributor").filter({
 				zipcode: parseInt(req.params.zipcode),
 				productID: parseInt(req.params.productID)
@@ -100,7 +100,7 @@ module.exports = function(app) {
 
 	app.post("/products/:productID/zipcodes/:zipcode/distributor", function(req, res) {
 		// look up in zipcode_product_distributor table
-		onConnect(function(connection) {
+		onConnect.connect(function(err, connection) {
 			r.table("zipcode_product_distributor").filter({
 				zipcode: req.params.zipcode,
 				productID: req.params.productID
