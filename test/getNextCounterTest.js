@@ -30,14 +30,6 @@ describe('getNextCounter', function() {
 		})
 	})
 
-	it.skip('should call back with a new counter when everything is provided', function(done) {
-		getNextCounter("testing", connectionObject, function(err, newCounter) {
-			assert(!err, "cb was called with an err")
-			assert((newCounter == 10), "newCounter != 10")
-			done()
-		})
-	})
-
 	it("should throw an err when anything but a string is provided as the 1st argument", function(done) {
 		try {
 			getNextCounter({
@@ -100,7 +92,7 @@ describe('getNextCounter', function() {
 		})
 	})
 
-	it("if counter doesn't exist, creates it, and calls back with 1", function (done) {
+	it("if counter doesn't exist, creates it, and calls back with 1", function(done) {
 		sinon.stub(r, "table").returns({
 			get: function() {
 				return {
@@ -122,15 +114,15 @@ describe('getNextCounter', function() {
 					}
 				}
 			},
-			insert: function (counterObject) {
+			insert: function(counterObject) {
 				return {
-					run: function (connectionObject, cb) {
+					run: function(connectionObject, cb) {
 						cb(null)
 					}
 				}
 			}
 		})
-		getNextCounter("testCounter", connectionObject, function (err, newCounter) {
+		getNextCounter("testCounter", connectionObject, function(err, newCounter) {
 			// again, should really assert that get, insert, and update were all called with the correct params
 			assert(!err)
 			assert(newCounter == 1)
