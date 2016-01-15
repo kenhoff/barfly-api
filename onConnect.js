@@ -1,6 +1,5 @@
 var r = require('rethinkdb');
 
-
 if (process.env.NODE_ENV == "production") {
 	opts = {
 		host: "aws-us-east-1-portal.9.dblayer.com",
@@ -17,10 +16,6 @@ if (process.env.NODE_ENV == "production") {
 
 module.exports.connect = function(cb) {
 	r.connect(opts, function(err, conn) {
-		if (!err) {
-			cb(conn)
-		} else {
-			throw "Database connection error"
-		}
+			cb(err, conn)
 	})
 }
