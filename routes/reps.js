@@ -19,10 +19,10 @@ module.exports = function(app) {
 		})
 	})
 
-	app.get("/reps/:repID", function (req, res) {
+	app.get("/reps/:repID", function(req, res) {
 		// here, we need to call the Auth0 API to get the rep.
 		request.get({
-			url: "https://barfly.auth0.com/api/v2/users/" + req.params.repID,
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.params.repID,
 			headers: {
 				"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
 			},
@@ -42,7 +42,7 @@ module.exports = function(app) {
 	app.post("/reps", jwtCheck, function(req, res) {
 		// here, we need to call the Auth0 API to create the rep.
 		request.post({
-			url: "https://barfly.auth0.com/api/v2/users",
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users",
 			headers: {
 				"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbImNyZWF0ZSJdfX0sImlhdCI6MTQ1MjIyNTI3OSwianRpIjoiMDQ5Mjg0ODFhYjkwNjY1MzMzYzM3MDM4Nzc5YzUxY2MifQ.fMOk3ef5PLJSjC3Y-vOUlZI84qMDg6Ke6xRPVzOghXk"
 			},
