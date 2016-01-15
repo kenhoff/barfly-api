@@ -32,9 +32,9 @@ module.exports = function(app) {
 					// look up user info, include it with productOrders
 
 					request.get({
-						url: "https://barfly.auth0.com/api/v2/users/" + req.user.user_id,
+						url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
 						headers: {
-							"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
+							"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 						}
 					}, function(err, response, user) {
 						sendProductOrders(productOrders, parseInt(req.params.barID), JSON.parse(user), function(err) {
@@ -93,9 +93,9 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 		r.table('bars').get(barID).run(connection, function(err, bar) {
 
 			request.get({
-				url: "https://barfly.auth0.com/api/v2/users/" + repOrder.repID,
+				url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + repOrder.repID,
 				headers: {
-					"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
+					"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 				}
 			}, function(err, response, body) {
 				if (err) {
@@ -130,7 +130,7 @@ assembleString = function(repName, barName, orderStrings, user) {
 	order = orderStrings.join("\n")
 	smsString = "Hi there " + repName + "! Here's the latest order for " + barName + ".\n\n" + order + "\n\n"
 	if (("user_metadata" in user) && ("phone" in user.user_metadata)) {
-		smsString += "Please respond to " + user.given_name + " ("+ user.user_metadata.phone + ") to let them know that you've received the order.\n\nThanks!"
+		smsString += "Please respond to " + user.given_name + " (" + user.user_metadata.phone + ") to let them know that you've received the order.\n\nThanks!"
 	} else {
 		smsString += "Please respond to " + user.given_name + " to let them know that you've received the order.\n\nThanks!"
 	}

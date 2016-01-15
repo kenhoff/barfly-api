@@ -11,9 +11,9 @@ module.exports = function(app) {
 
 	app.get("/user", jwtCheck, function(req, res) {
 		request.get({
-			url: "https://barfly.auth0.com/api/v2/users/" + req.user.user_id,
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
 			headers: {
-				"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTI2NTA0MTIsImp0aSI6ImNjOGJkOTUzZDNlN2ZiMDgxOGUzYmMyNDMwZTk5MjBlIn0.PPIGaF86A-dk6DgN8jIZGUS-EFqooUALyRkL_7kafhc"
+				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 			},
 		}, function(err, response, body) {
 			if (err) {
@@ -30,9 +30,9 @@ module.exports = function(app) {
 	app.patch("/user", jwtCheck, function(req, res) {
 		// TODO validate req.body.phone
 		request.patch({
-			url: "https://barfly.auth0.com/api/v2/users/" + req.user.user_id,
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
 			headers: {
-				"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInVwZGF0ZSJdfX0sImlhdCI6MTQ1MjY0OTkyOSwianRpIjoiMzBhNDgxMzYwYWYwOWZlYzY3YWNlOTFlZGUzYWM5ZTQifQ.kwwT06o7jIDo4TiqPVl-b_-BFhDfOtR-QR_ohRqVDAA"
+				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 			},
 			form: {
 				user_metadata: {
