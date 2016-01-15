@@ -3,7 +3,6 @@ var jwtCheck = require('../jwtCheck.js');
 
 var onConnect = require('../onConnect.js');
 var getNextCounter = require('../getNextCounter.js');
-var ensureTableExists = require('../ensureTableExists.js');
 var r = require('rethinkdb');
 
 var request = require('request');
