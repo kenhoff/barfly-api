@@ -34,7 +34,7 @@ module.exports = function(app) {
 					request.get({
 						url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
 						headers: {
-							"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
+							"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 						}
 					}, function(err, response, user) {
 						sendProductOrders(productOrders, parseInt(req.params.barID), JSON.parse(user), function(err) {
@@ -95,7 +95,7 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 			request.get({
 				url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + repOrder.repID,
 				headers: {
-					"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJwS1J5S2J3dzVPRzRVVUIzdG5LYWJHZ1hqSTJDMnVNQiIsInNjb3BlcyI6eyJ1c2VycyI6eyJhY3Rpb25zIjpbInJlYWQiXX19LCJpYXQiOjE0NTIyNzM1NjQsImp0aSI6IjA5Nzg5ZTI0NDBiNDI2OGEwZGVlM2M5NTk2NzlmYWUyIn0.hvNLp9bXGC0Mie_hjW505GKS7kvD5r6SdYY5QshbgL0"
+					"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 				}
 			}, function(err, response, body) {
 				if (err) {
