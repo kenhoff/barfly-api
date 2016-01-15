@@ -1,4 +1,5 @@
 var r = require('rethinkdb');
+var onConnect = require('./onConnect.js');
 
 module.exports = function(name, connection, cb) {
 	if (typeof name !== "string") {
@@ -8,13 +9,36 @@ module.exports = function(name, connection, cb) {
 	} else if (typeof cb !== "function") {
 		throw "Callback not provided as 3rd argument"
 	} else {
-		r.table("counters").get(name).update({
-			seq: r.row("seq").add(1)
-		}, {
-			returnChanges: true
-		}).run(connection, function(err, result) {
-			newSeq = result["changes"][0]["new_val"]["seq"]
-			cb(err, newSeq)
+		ensureCounterExists(name, function() {
+			r.table("counters").get(name).update({
+				seq: r.row("seq").add(1)
+			}, {
+				returnChanges: true
+			}).run(connection, function(err, result) {
+				newSeq = result["changes"][0]["new_val"]["seq"]
+				cb(err, newSeq)
+			})
+		})
+	}
+}
+
+ensureCounterExists = function(counterName, cb) {
+	if (!counterName) {
+		return cb("Counter name not provided")
+	} else {
+		onConnect.connect(function(err, connection) {
+			r.table('counters').get(counterName).run(connection, function(err, result) {
+				if (!err && !result) {
+					r.table('counters').insert({
+						id: counterName,
+						seq: 0
+					}).run(connection, function(err, result) {
+						cb(err)
+					})
+				} else {
+					cb(err)
+				}
+			})
 		})
 	}
 }

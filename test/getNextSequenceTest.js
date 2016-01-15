@@ -30,7 +30,7 @@ describe('getNextSequence', function() {
 		})
 	})
 
-	it('should call back with a new sequence when everything is provided', function(done) {
+	it.skip('should call back with a new sequence when everything is provided', function(done) {
 		getNextSequence("testing", connectionObject, function(err, newSeq) {
 			assert(!err, "cb was called with an err")
 			assert((newSeq == 10), "newSeq != 10")
@@ -67,7 +67,77 @@ describe('getNextSequence', function() {
 		}
 	})
 
-	after(function() {
+	it("increments existing counter by 1", function(done) {
 		r.table.restore()
+		sinon.stub(r, "table").returns({
+			get: function() {
+				return {
+					update: function() {
+						return {
+							run: function(conn, cb) {
+								cb(null, {
+									changes: [{
+										new_val: {
+											seq: 11
+										}
+									}]
+								})
+							}
+						}
+					},
+					run: function(conn, cb) {
+						cb(null, 10)
+					}
+				}
+			}
+		})
+		getNextSequence("testCounter", connectionObject, function(err, newSeq) {
+			// should really also assert that update was called with the correct args
+			assert(!err)
+			assert(newSeq == 11, "new sequence was not incremented correctly")
+			r.table.restore()
+			done()
+		})
 	})
+
+	it("if sequence doesn't exist, creates it, and calls back with 1", function (done) {
+		sinon.stub(r, "table").returns({
+			get: function() {
+				return {
+					update: function() {
+						return {
+							run: function(conn, cb) {
+								cb(null, {
+									changes: [{
+										new_val: {
+											seq: 1
+										}
+									}]
+								})
+							}
+						}
+					},
+					run: function(conn, cb) {
+						cb(null, null)
+					}
+				}
+			},
+			insert: function (counterObject) {
+				return {
+					run: function (connectionObject, cb) {
+						cb(null)
+					}
+				}
+			}
+		})
+		getNextSequence("testCounter", connectionObject, function (err, newSeq) {
+			// again, should really assert that get, insert, and update were all called with the correct params
+			assert(!err)
+			assert(newSeq == 1)
+			r.table.restore()
+			done()
+		})
+	})
+
+
 })
