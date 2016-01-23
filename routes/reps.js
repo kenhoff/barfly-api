@@ -41,6 +41,9 @@ module.exports = function(app) {
 
 	app.post("/reps", jwtCheck, function(req, res) {
 		// here, we need to call the Auth0 API to create the rep.
+
+		repEmail = makePassword() + "@" + makePassword() + ".com"
+
 		request.post({
 			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users",
 			headers: {
@@ -48,7 +51,7 @@ module.exports = function(app) {
 			},
 			form: {
 				"connection": "Username-Password-Authentication",
-				"email": req.body.repEmail,
+				"email": repEmail,
 				"name": req.body.repName,
 				"user_metadata": {
 					"phone": req.body.repPhone
