@@ -10,11 +10,14 @@ var r = require('rethinkdb');
 module.exports = function(app) {
 	app.get("/products", function(req, res) {
 		onConnect.connect(function(err, connection) {
-			r.table("products").withFields('id').run(connection, function(err, cursor) {
+			r.table("products").withFields('id', 'productName').run(connection, function(err, cursor) {
 				cursor.toArray(function(err, products) {
 					response = []
 					for (var i = 0; i < products.length; i++) {
-						response.push(products[i]["id"])
+						response.push({
+							productID: products[i]["id"],
+							productName: products[i]["productName"]
+						})
 					}
 					res.json(response)
 				})
