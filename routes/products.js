@@ -85,15 +85,19 @@ module.exports = function(app) {
 				zipcode: parseInt(req.params.zipcode),
 				productID: parseInt(req.params.productID)
 			}).pluck("distributorID").run(connection, function(err, cursor) {
-				cursor.toArray(function(err, results) {
-					if (results.length > 1) {
-						// throw error
-					} else if (results.length == 0) {
-						res.json({})
-					} else {
-						res.json(results[0])
-					}
-				})
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					cursor.toArray(function(err, results) {
+						if (results.length > 1) {
+							// throw error
+						} else if (results.length == 0) {
+							res.json({})
+						} else {
+							res.json(results[0])
+						}
+					})
+				}
 			})
 		})
 	})
