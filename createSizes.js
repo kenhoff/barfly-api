@@ -9,16 +9,16 @@ var async = require('async');
 // DO NOT CHANGE THE ORDER OF THESE
 // just add new ones to the end
 containers = [
-	"11.2 BTL",
-	"12 oz CAN",
-	"12 oz BTL",
-	"16 oz ALUM BT",
-	"18.6 oz BTL",
-	"20.3 BTL",
-	"21.3 BTL",
-	"21.4 BTL",
-	"21.6 oz BTL",
-	"24 oz CAN",
+	"11.2oz BTL",
+	"12oz CAN",
+	"12oz BTL",
+	"16oz ALUM BTL",
+	"18.6oz BTL",
+	"20.3oz BTL",
+	"21.3oz BTL",
+	"21.4oz BTL",
+	"21.6oz BTL",
+	"24oz CAN",
 	"25.4oz CAN"
 ]
 
