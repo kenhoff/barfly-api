@@ -17,7 +17,9 @@ tables = [
 	"product_orders",
 	"products",
 	"sizes",
-	"zipcode_product_distributor"
+	"zipcode_product_distributor",
+	"containers",
+	"packaging"
 ]
 
 async.map(tables, function(table, cb) {
