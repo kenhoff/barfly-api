@@ -1,17 +1,13 @@
 var r = require('rethinkdb');
 var fs = require('fs');
-
 var onConnect = require('./onConnect.js');
 var getNextCounter = require('./getNextCounter.js');
-
 var jwtCheck = require('./jwtCheck.js');
 
 module.exports = function(app) {
-
 	app.get("/", function(req, res) {
 		res.send(200)
 	})
-
 	require("./routes/user.js")(app)
 	require("./routes/bars.js")(app)
 	require("./routes/products.js")(app)
@@ -21,5 +17,5 @@ module.exports = function(app) {
 	require("./routes/accounts.js")(app)
 	require("./routes/reps.js")(app)
 	require("./routes/containers.js")(app)
-
+	require("./routes/packaging.js")(app)
 }
