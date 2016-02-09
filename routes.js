@@ -20,5 +20,6 @@ module.exports = function(app) {
 	require("./routes/distributors.js")(app)
 	require("./routes/accounts.js")(app)
 	require("./routes/reps.js")(app)
+	require("./routes/containers.js")(app)
 
 }
