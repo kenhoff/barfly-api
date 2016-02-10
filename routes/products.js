@@ -134,6 +134,22 @@ module.exports = function(app) {
 	})
 
 
+	app.post("/products/:productID/sizes", jwtCheck, function(req, res) {
+		console.log(req.params.productID);
+		console.log(req.body.sizeID);
+		onConnect.connect(function(err, connection) {
+			r.table("products").get(parseInt(req.params.productID)).update({
+				productSizes: r.row("productSizes").append(parseInt(req.body.sizeID))
+			}).run(connection, function(err, result) {
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					res.sendStatus(200)
+				}
+			})
+		})
+	})
+
 
 
 }
