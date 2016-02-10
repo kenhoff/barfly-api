@@ -22,8 +22,6 @@ containers = [
 	"25.4oz CAN"
 ]
 
-console.log("createSizes");
-
 onConnect.connect(function(err, conn) {
 	containerCount = 0
 	async.eachSeries(containers, function(containerSize, cb) {
