@@ -111,6 +111,7 @@ module.exports = function(app) {
 	getUserBars = function(userID, cb) {
 		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
 		onConnect.connect(function(err, connection) {
+			console.log(err);
 			r.table("bar_memberships").filter({
 				userID: userID
 			}).withFields("barID").run(connection, function(err, cursor) {
