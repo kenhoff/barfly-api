@@ -17,7 +17,6 @@ module.exports = function(app) {
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, productOrders) {
 					// look up user info, include it with productOrders
-
 					request.get({
 						url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
 						headers: {
@@ -107,7 +106,6 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 		})
 	})
 
-
 	// then, get the rep name and number
 	// then, for each productOrder, get the productName and productSizeName, package that up into an array of orderStrings
 }
@@ -154,8 +152,13 @@ getProductName = function(productID, cb) {
 
 getProductSizeName = function(productSizeID, cb) {
 	onConnect.connect(function(err, connection) {
-		r.table("sizes").get(productSizeID).run(connection, function(err, result) {
-			cb(err, result.sizeName)
+		r.table("sizes").get(productSizeID).run(connection, function(err, size) {
+			// here, we just return a list of size names - instead, we need to return a list of combination containerName and packagingNames
+			r.table("containers").get(parseInt(size.containerID)).run(connection, function(err, container) {
+				r.table("packaging").get(parseInt(size.packagingID)).run(connection, function(err, packaging) {
+					cb(err, container.containerName + ", " + packaging.packagingName)
+				})
+			})
 		})
 	})
 }
