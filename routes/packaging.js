@@ -16,4 +16,15 @@ module.exports = function(app) {
 			})
 		})
 	})
+	app.get("/packaging/:packagingID", function(req, res) {
+		onConnect.connect(function(err, connection) {
+			r.table("packaging").get(parseInt(req.params.packagingID)).run(connection, function(err, result) {
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					res.json(result)
+				}
+			})
+		})
+	})
 }
