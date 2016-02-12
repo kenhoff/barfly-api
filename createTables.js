@@ -17,21 +17,28 @@ tables = [
 	"product_orders",
 	"products",
 	"sizes",
-	"zipcode_product_distributor"
+	"zipcode_product_distributor",
+	"containers",
+	"packaging"
 ]
 
-async.map(tables, function(table, cb) {
-	onConnect.connect(function(err, conn) {
+onConnect.connect(function(err, conn) {
+	async.each(tables, function(table, cb) {
 		r.tableCreate(table).run(conn, function(err, result) {
 			if (err) {
 				console.log(table, "already exists");
-				conn.close()
 				cb()
 			} else {
 				console.log("Created", table);
-				conn.close()
 				cb()
 			}
 		})
+	}, function(err) {
+		if (err) {
+			throw err
+		} else {
+			console.log("done creating tables")
+			conn.close()
+		}
 	})
 })

@@ -43,27 +43,18 @@ module.exports = function(app) {
 					if (results.length > 1) {
 						// throw err
 					} else if (results.length == 1) {
-						// just update this product
-						// If so, just update that product and append the new size.
-						results[0].productSizes.push(parseInt(req.body.productSize))
-						r.table('products').get(results[0].id).update({
-							productSizes: results[0].productSizes
-						}).run(connection, function(err, result) {
-							if (!err) {
-								res.json({
-									productID: results[0].id
-								})
-							}
+						// If so, do nothing!
+						res.json({
+							productID: results[0].id
 						})
 					} else {
-						// create the new product
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
 						getNextCounter("products", connection, function(err, newCounter) {
 							r.table('products').insert({
 								id: newCounter,
 								productName: req.body.productName,
-								productSizes: [parseInt(req.body.productSize)]
+								productSizes: []
 							}).run(connection, function(err, result) {
 								if (!err) {
 									res.json({
@@ -85,21 +76,22 @@ module.exports = function(app) {
 				zipcode: parseInt(req.params.zipcode),
 				productID: parseInt(req.params.productID)
 			}).pluck("distributorID").run(connection, function(err, cursor) {
-				cursor.toArray(function(err, results) {
-					if (results.length > 1) {
-						// throw error
-					} else if (results.length == 0) {
-						res.json({})
-					} else {
-						res.json(results[0])
-					}
-				})
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					cursor.toArray(function(err, results) {
+						if (results.length > 1) {
+							// throw error
+						} else if (results.length == 0) {
+							res.json({})
+						} else {
+							res.json(results[0])
+						}
+					})
+				}
 			})
 		})
 	})
-
-
-
 
 	app.post("/products/:productID/zipcodes/:zipcode/distributor", function(req, res) {
 		// look up in zipcode_product_distributor table
@@ -129,7 +121,17 @@ module.exports = function(app) {
 		})
 	})
 
-
-
-
+	app.post("/products/:productID/sizes", jwtCheck, function(req, res) {
+		onConnect.connect(function(err, connection) {
+			r.table("products").get(parseInt(req.params.productID)).update({
+				productSizes: r.row("productSizes").append(parseInt(req.body.sizeID))
+			}).run(connection, function(err, result) {
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					res.sendStatus(200)
+				}
+			})
+		})
+	})
 }
