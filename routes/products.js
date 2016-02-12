@@ -43,27 +43,18 @@ module.exports = function(app) {
 					if (results.length > 1) {
 						// throw err
 					} else if (results.length == 1) {
-						// just update this product
-						// If so, just update that product and append the new size.
-						results[0].productSizes.push(parseInt(req.body.productSize))
-						r.table('products').get(results[0].id).update({
-							productSizes: results[0].productSizes
-						}).run(connection, function(err, result) {
-							if (!err) {
-								res.json({
-									productID: results[0].id
-								})
-							}
+						// If so, do nothing!
+						res.json({
+							productID: results[0].id
 						})
 					} else {
-						// create the new product
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
 						getNextCounter("products", connection, function(err, newCounter) {
 							r.table('products').insert({
 								id: newCounter,
 								productName: req.body.productName,
-								productSizes: [parseInt(req.body.productSize)]
+								productSizes: []
 							}).run(connection, function(err, result) {
 								if (!err) {
 									res.json({
@@ -102,9 +93,6 @@ module.exports = function(app) {
 		})
 	})
 
-
-
-
 	app.post("/products/:productID/zipcodes/:zipcode/distributor", function(req, res) {
 		// look up in zipcode_product_distributor table
 		onConnect.connect(function(err, connection) {
@@ -133,10 +121,7 @@ module.exports = function(app) {
 		})
 	})
 
-
 	app.post("/products/:productID/sizes", jwtCheck, function(req, res) {
-		console.log(req.params.productID);
-		console.log(req.body.sizeID);
 		onConnect.connect(function(err, connection) {
 			r.table("products").get(parseInt(req.params.productID)).update({
 				productSizes: r.row("productSizes").append(parseInt(req.body.sizeID))
@@ -149,7 +134,4 @@ module.exports = function(app) {
 			})
 		})
 	})
-
-
-
 }
