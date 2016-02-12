@@ -16,4 +16,15 @@ module.exports = function(app) {
 			})
 		})
 	})
+	app.get("/containers/:containerID", function(req, res) {
+		onConnect.connect(function(err, connection) {
+			r.table("containers").get(parseInt(req.params.containerID)).run(connection, function(err, result) {
+				if (err) {
+					res.status(500).send(err)
+				} else {
+					res.json(result)
+				}
+			})
+		})
+	})
 }
