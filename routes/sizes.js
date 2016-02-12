@@ -9,8 +9,8 @@ module.exports = function(app) {
 		if (("containerID" in req.query) && ("packagingID" in req.query)) {
 			onConnect.connect(function(err, connection) {
 				r.table("sizes").filter({
-					containerID: req.query.containerID,
-					packagingID: req.query.packagingID
+					containerID: parseInt(req.query.containerID),
+					packagingID: parseInt(req.query.packagingID)
 				}).run(connection, function(err, cursor) {
 					cursor.toArray(function(err, results) {
 						if (results.length == 0) {
