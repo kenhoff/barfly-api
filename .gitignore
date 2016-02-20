@@ -30,3 +30,4 @@ node_modules
 
 # ignore local rethinkdb_data
 rethinkdb_data
+.DS_Store
