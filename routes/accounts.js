@@ -14,6 +14,8 @@ module.exports = function(app) {
 				cursor.toArray(function(err, results) {
 					if (results.length > 1) {
 						// throw err
+					} else if (results.length == 0) {
+						res.json({})
 					} else {
 						res.json(results[0])
 					}
