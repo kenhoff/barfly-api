@@ -1,11 +1,14 @@
 // hacky and gross. any way around this?
-var jwtCheck = require('../jwtCheck.js');
-var onConnect = require('../onConnect.js');
-var getNextCounter = require('../getNextCounter.js');
+var jwtCheck = require('../../jwtCheck.js');
+var onConnect = require('../../onConnect.js');
+var getNextCounter = require('../../getNextCounter.js');
 var r = require('rethinkdb');
 
 
 module.exports = function(app) {
+
+	require('./starred')(app);
+
 	app.get("/bars/:barID", jwtCheck, function(req, res) {
 		getUserBars(req.user.user_id, function(bars) {
 			barID = parseInt(req.params.barID)

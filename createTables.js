@@ -19,7 +19,8 @@ tables = [
 	"sizes",
 	"zipcode_product_distributor",
 	"containers",
-	"packaging"
+	"packaging",
+	"starred"
 ]
 
 onConnect.connect(function(err, conn) {

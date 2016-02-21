@@ -9,7 +9,7 @@ module.exports = function(app) {
 		res.send(200)
 	})
 	require("./routes/user.js")(app)
-	require("./routes/bars.js")(app)
+	require("./routes/bars")(app)
 	require("./routes/products.js")(app)
 	require("./routes/sizes.js")(app)
 	require("./routes/orders")(app)

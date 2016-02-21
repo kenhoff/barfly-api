@@ -18,6 +18,7 @@ module.exports = function(app) {
 					cursor.toArray(function(err, results) {
 						// also, get information from the parent order
 						r.table('orders').get(parseInt(req.params.orderID)).run(connection, function (err, order) {
+							// needs to handle if there is no order
 							res.json({
 								sent: order.sent,
 								productOrders: results
