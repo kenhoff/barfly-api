@@ -9,17 +9,23 @@ var async = require('async');
 // DO NOT CHANGE THE ORDER OF THESE
 // just add new ones to the end
 containers = [
-	"11.2oz BTL",
-	"12oz CAN",
-	"12oz BTL",
-	"16oz ALUM BTL",
-	"18.6oz BTL",
-	"20.3oz BTL",
-	"21.3oz BTL",
-	"21.4oz BTL",
-	"21.6oz BTL",
-	"24oz CAN",
-	"25.4oz CAN"
+	"11.2oz bottle",
+	"12oz can",
+	"12oz bottle",
+	"16oz aluminum bottle",
+	"18.6oz bottle",
+	"20.3oz bottle",
+	"21.3oz bottle",
+	"21.4oz bottle",
+	"21.6oz bottle",
+	"24oz can",
+	"25.4oz can",
+	"Keg (5 gallon)",
+	"Keg (1/4 barrel)",
+	"Keg (1/2 barrel)",
+	"750ml bottle",
+	"1 ltr bottle",
+	"1.75 ltr bottle",
 ]
 
 onConnect.connect(function(err, conn) {
