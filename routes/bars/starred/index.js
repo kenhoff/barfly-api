@@ -54,7 +54,6 @@ module.exports = function(app) {
 
 	app.delete("/bars/:barID/starred", jwtCheck, function(req, res) {
 		// req.body (?) must contain a sizeID and productID
-		console.log(req.body);
 		// if so, then just delete the record that matches that barID, sizeID and productID
 		if (("sizeID" in req.body) && ("productID" in req.body)) {
 			// if so, then just insert a new record in the starred table with barID, sizeID and productID
