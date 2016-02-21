@@ -16,6 +16,6 @@ if (process.env.NODE_ENV == "production") {
 
 module.exports.connect = function(cb) {
 	r.connect(opts, function(err, conn) {
-			cb(err, conn)
+		cb(err, conn)
 	})
 }
