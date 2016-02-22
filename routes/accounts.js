@@ -19,6 +19,7 @@ module.exports = function(app) {
 					} else {
 						res.json(results[0])
 					}
+					connection.close()
 				})
 			})
 		})
@@ -36,6 +37,7 @@ module.exports = function(app) {
 					if (!err) {
 						res.sendStatus(200)
 					}
+					connection.close()
 				})
 			})
 		})

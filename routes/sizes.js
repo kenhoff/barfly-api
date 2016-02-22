@@ -18,6 +18,7 @@ module.exports = function(app) {
 						} else {
 							res.json(results[0])
 						}
+						connection.close()
 					})
 				})
 			})
@@ -31,6 +32,7 @@ module.exports = function(app) {
 							response.push(results[i].id)
 						}
 						res.json(response)
+						connection.close()
 					})
 				})
 			})
@@ -46,6 +48,7 @@ module.exports = function(app) {
 					packagingID: parseInt(req.body.packagingID)
 				}).run(connection, function(err, result) {
 					res.json(newCounter)
+					connection.close()
 				})
 			})
 		})
@@ -55,6 +58,7 @@ module.exports = function(app) {
 		onConnect.connect(function(err, connection) {
 			r.table("sizes").get(parseInt(req.params.sizeID)).run(connection, function(err, result) {
 				res.json(result)
+				connection.close()
 			})
 		})
 	})

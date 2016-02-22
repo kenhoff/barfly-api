@@ -20,6 +20,7 @@ module.exports = function(app) {
 						})
 					}
 					res.json(response)
+					connection.close()
 				})
 			})
 		})
@@ -29,6 +30,7 @@ module.exports = function(app) {
 		onConnect.connect(function(err, connection) {
 			r.table("products").get(parseInt(req.params.productID)).run(connection, function(err, product) {
 				res.json(product)
+				connection.close()
 			})
 		})
 	})
@@ -47,6 +49,7 @@ module.exports = function(app) {
 						res.json({
 							productID: results[0].id
 						})
+						connection.close()
 					} else {
 						// else, create a new product with that size.
 						// alert alert! need to send emails to Ken & Peter when this happens.
@@ -60,6 +63,7 @@ module.exports = function(app) {
 									res.json({
 										productID: newCounter
 									})
+									connection.close()
 								}
 							})
 						})
@@ -87,6 +91,7 @@ module.exports = function(app) {
 						} else {
 							res.json(results[0])
 						}
+						connection.close()
 					})
 				}
 			})
@@ -103,6 +108,7 @@ module.exports = function(app) {
 				cursor.toArray(function(err, results) {
 					if (results.length >= 1) {
 						// throw error
+						connection.close()
 						res.sendStatus(500)
 					} else {
 						// save the zipcode_product_distributor entry
@@ -113,6 +119,7 @@ module.exports = function(app) {
 						}).run(connection, function(err, result) {
 							if (!err) {
 								res.sendStatus(200)
+								connection.close()
 							}
 						})
 					}
@@ -131,6 +138,7 @@ module.exports = function(app) {
 				} else {
 					res.sendStatus(200)
 				}
+				connection.close()
 			})
 		})
 	})

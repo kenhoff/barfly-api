@@ -14,6 +14,7 @@ module.exports = function(app) {
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					res.json(results)
+					connection.close()
 				})
 			})
 		})
@@ -77,6 +78,7 @@ module.exports = function(app) {
 				distributorID: parseInt(req.body.distributorID)
 			}).run(connection, function(err, result) {
 				res.sendStatus(200)
+				connection.close()
 			})
 		})
 	})

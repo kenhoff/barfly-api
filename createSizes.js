@@ -28,7 +28,7 @@ containers = [
 	"1.75 ltr bottle",
 ]
 
-onConnect.connect(function(err, conn) {
+onConnect.connect(function(err, connection) {
 	containerCount = 0
 	async.eachSeries(containers, function(containerSize, cb) {
 		r.table("containers").insert({
@@ -36,7 +36,7 @@ onConnect.connect(function(err, conn) {
 			id: containerCount
 		}, {
 			conflict: "replace"
-		}).run(conn, function(err, result) {
+		}).run(connection, function(err, result) {
 			containerCount += 1
 			if (err) {
 				throw err
@@ -50,7 +50,7 @@ onConnect.connect(function(err, conn) {
 			throw err
 		} else {
 			console.log("done inserting containers");
-			conn.close()
+			connection.close()
 		}
 	})
 })
@@ -65,7 +65,7 @@ packaging = [
 	"Pack of 30"
 ]
 
-onConnect.connect(function(err, conn) {
+onConnect.connect(function(err, connection) {
 	packagingCount = 0
 	async.eachSeries(packaging, function(packagingSize, cb) {
 		r.table("packaging").insert({
@@ -73,7 +73,7 @@ onConnect.connect(function(err, conn) {
 			id: packagingCount
 		}, {
 			conflict: "replace"
-		}).run(conn, function(err, result) {
+		}).run(connection, function(err, result) {
 			packagingCount += 1
 			if (err) {
 				throw err
@@ -87,7 +87,7 @@ onConnect.connect(function(err, conn) {
 			throw err
 		} else {
 			console.log("done inserting packaging");
-			conn.close()
+			connection.close()
 		}
 	})
 })

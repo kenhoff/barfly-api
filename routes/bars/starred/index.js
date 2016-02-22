@@ -15,6 +15,7 @@ module.exports = function(app) {
 					}).run(connection, function(err, cursor) {
 						cursor.toArray(function(err, results) {
 							res.json(results)
+							connection.close()
 						})
 					})
 				})
@@ -40,6 +41,7 @@ module.exports = function(app) {
 								id: newCounter
 							}).run(connection, function(err, result) {
 								res.json(result)
+								connection.close()
 							})
 						})
 					})
@@ -67,6 +69,7 @@ module.exports = function(app) {
 							productID: parseInt(req.body.productID)
 						}).delete().run(connection, function(err, result) {
 							res.json(result)
+							connection.close()
 						})
 					})
 				} else {

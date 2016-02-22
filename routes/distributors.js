@@ -10,6 +10,7 @@ module.exports = function(app) {
 			r.table("distributors").run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					res.json(results)
+					connection.close()
 				})
 			})
 		})
@@ -26,6 +27,7 @@ module.exports = function(app) {
 					res.json({
 						distributorID: newCounter
 					})
+					connection.close()
 				})
 			})
 		})
@@ -35,6 +37,7 @@ module.exports = function(app) {
 		onConnect.connect(function(err, connection) {
 			r.table("distributors").get(parseInt(req.params.distributorID)).run(connection, function(err, result) {
 				res.json(result)
+				connection.close()
 			})
 		})
 	})

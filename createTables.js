@@ -23,9 +23,9 @@ tables = [
 	"starred"
 ]
 
-onConnect.connect(function(err, conn) {
+onConnect.connect(function(err, connection) {
 	async.each(tables, function(table, cb) {
-		r.tableCreate(table).run(conn, function(err, result) {
+		r.tableCreate(table).run(connection, function(err, result) {
 			if (err) {
 				console.log(table, "already exists");
 				cb()
@@ -39,7 +39,7 @@ onConnect.connect(function(err, conn) {
 			throw err
 		} else {
 			console.log("done creating tables")
-			conn.close()
+			connection.close()
 		}
 	})
 })

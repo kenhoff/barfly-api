@@ -34,9 +34,11 @@ ensureCounterExists = function(counterName, cb) {
 						seq: 0
 					}).run(connection, function(err, result) {
 						cb(err)
+						connection.close()
 					})
 				} else {
 					cb(err)
+					connection.close()
 				}
 			})
 		})

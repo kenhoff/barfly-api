@@ -76,6 +76,7 @@ module.exports = function(app) {
 							barName: req.body.barName,
 							zipCode: parseInt(req.body.zipCode)
 						})
+						connection.close()
 					})
 				})
 			})
@@ -101,6 +102,7 @@ module.exports = function(app) {
 							} else {
 								// throw something?
 							}
+							connection.close()
 						})
 					}
 				})
@@ -120,6 +122,7 @@ module.exports = function(app) {
 						bars.push(results[i].barID)
 					}
 					cb(bars)
+					connection.close()
 				})
 			})
 		})
