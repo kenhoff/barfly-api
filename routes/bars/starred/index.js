@@ -15,6 +15,7 @@ module.exports = function(app) {
 					}).run(connection, function(err, cursor) {
 						cursor.toArray(function(err, results) {
 							res.json(results)
+							connection.close()
 						})
 					})
 				})
@@ -40,6 +41,7 @@ module.exports = function(app) {
 								id: newCounter
 							}).run(connection, function(err, result) {
 								res.json(result)
+								connection.close()
 							})
 						})
 					})
@@ -54,7 +56,6 @@ module.exports = function(app) {
 
 	app.delete("/bars/:barID/starred", jwtCheck, function(req, res) {
 		// req.body (?) must contain a sizeID and productID
-		console.log(req.body);
 		// if so, then just delete the record that matches that barID, sizeID and productID
 		if (("sizeID" in req.body) && ("productID" in req.body)) {
 			// if so, then just insert a new record in the starred table with barID, sizeID and productID
@@ -68,6 +69,7 @@ module.exports = function(app) {
 							productID: parseInt(req.body.productID)
 						}).delete().run(connection, function(err, result) {
 							res.json(result)
+							connection.close()
 						})
 					})
 				} else {

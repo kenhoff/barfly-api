@@ -12,6 +12,7 @@ module.exports = function(app) {
 				}
 				cursor.toArray(function(err, results) {
 					res.json(results)
+					connection.close()
 				})
 			})
 		})
@@ -24,6 +25,7 @@ module.exports = function(app) {
 				} else {
 					res.json(result)
 				}
+				connection.close()
 			})
 		})
 	})

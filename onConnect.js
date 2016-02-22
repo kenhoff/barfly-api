@@ -16,6 +16,9 @@ if (process.env.NODE_ENV == "production") {
 
 module.exports.connect = function(cb) {
 	r.connect(opts, function(err, conn) {
+		if (err) {
+			console.log(err);
+		}
 		cb(err, conn)
 	})
 }

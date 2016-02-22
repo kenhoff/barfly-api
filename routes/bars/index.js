@@ -16,6 +16,7 @@ module.exports = function(app) {
 				onConnect.connect(function(err, connection) {
 					r.table("bars").get(parseInt(req.params.barID)).run(connection, function(err, result) {
 						res.send(result)
+						connection.close()
 					})
 				})
 			} else {
@@ -40,6 +41,7 @@ module.exports = function(app) {
 							}
 							orders.sort()
 							res.json(orders)
+							connection.close()
 						})
 					})
 				})
@@ -63,6 +65,7 @@ module.exports = function(app) {
 							returnChanges: true
 						}).run(connection, function(err, result) {
 							res.json(result["changes"][0]["new_val"]["id"])
+							connection.close()
 						})
 					})
 				})

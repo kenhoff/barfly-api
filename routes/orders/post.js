@@ -36,6 +36,7 @@ module.exports = function(app) {
 									} else {
 										res.status(500).send(err)
 									}
+									connection.close()
 								})
 							}
 						})
@@ -97,10 +98,12 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 						}, function(err, responseData) {
 							console.log(responseData.body);
 							cb(err)
+							connection.close()
 						})
 					})
 				} else {
 					cb(err)
+					connection.close()
 				}
 			})
 		})
@@ -146,6 +149,7 @@ getProductName = function(productID, cb) {
 	onConnect.connect(function(err, connection) {
 		r.table("products").get(productID).run(connection, function(err, result) {
 			cb(err, result.productName)
+			connection.close()
 		})
 	})
 }
@@ -157,6 +161,7 @@ getProductSizeName = function(productSizeID, cb) {
 			r.table("containers").get(parseInt(size.containerID)).run(connection, function(err, container) {
 				r.table("packaging").get(parseInt(size.packagingID)).run(connection, function(err, packaging) {
 					cb(err, container.containerName + ", " + packaging.packagingName)
+					connection.close()
 				})
 			})
 		})
@@ -199,6 +204,7 @@ addProductOrderToRepOrders = function(barID, repOrders, productOrder, cb) {
 										if (repOrder.repID == accounts[0].repID) {
 											repOrder.productOrders.push(productOrder)
 											return cb()
+											connection.close()
 										}
 									}
 									// if we didnt' find a rep with the order, push a new repOrder onto repOrders
@@ -207,6 +213,7 @@ addProductOrderToRepOrders = function(barID, repOrders, productOrder, cb) {
 										productOrders: [productOrder]
 									})
 									cb()
+									connection.close()
 								}
 							})
 						})
@@ -233,6 +240,7 @@ removeNonexistentProducts = function(productOrder, cb) {
 			} else {
 				cb(false)
 			}
+			connection.close()
 		})
 	})
 }

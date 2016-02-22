@@ -23,11 +23,11 @@ module.exports = function(app) {
 								sent: order.sent,
 								productOrders: results
 							})
+							connection.close()
 						})
 					})
 				})
 			})
-			// res.json({})
 			/*
 			should send something like
 			{
@@ -101,6 +101,7 @@ module.exports = function(app) {
 						// yay binding!
 						async.map(results, cullProductOrderIfNeeded.bind(this, orders), function(err) {
 							cb()
+							connection.close()
 						})
 					})
 				})
@@ -118,6 +119,7 @@ module.exports = function(app) {
 		onConnect.connect(function(err, connection) {
 			r.table('product_orders').get(dbProductOrder["id"]).delete().run(connection, function(err, result) {
 				cb()
+				connection.close()
 			})
 		})
 	}
@@ -146,6 +148,7 @@ module.exports = function(app) {
 				productQuantity: parseInt(productQuantity)
 			}).run(connection, function(err, result) {
 				cb()
+				connection.close()
 			})
 		})
 	}
@@ -162,6 +165,7 @@ module.exports = function(app) {
 					productQuantity: parseInt(productQuantity)
 				}).run(connection, function(err, result) {
 					cb()
+					connection.close()
 				})
 			})
 		})
@@ -182,6 +186,7 @@ module.exports = function(app) {
 					} else {
 						cb("err")
 					}
+					connection.close()
 				})
 			})
 		})
@@ -193,8 +198,8 @@ module.exports = function(app) {
 			r.table('product_orders').filter({
 				parentOrderID: parseInt(parentOrderID)
 			}).delete().run(connection, function(err, result) {
-				console.log(result);
 				cb()
+				connection.close()
 			})
 		})
 	}
