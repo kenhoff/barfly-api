@@ -59,10 +59,10 @@ onConnect.connect(function(err, connection) {
 // just add new ones to the end
 packaging = [
 	"Individual",
-	"Pack of 6",
-	"Pack of 12",
-	"Pack of 24",
-	"Pack of 30"
+	"Case of 6",
+	"Case of 12",
+	"Case of 24",
+	"Case of 30"
 ]
 
 onConnect.connect(function(err, connection) {
