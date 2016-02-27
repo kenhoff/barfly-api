@@ -29,7 +29,8 @@ module.exports = function(app) {
 							} else {
 								// write the order as sent
 								r.table("orders").get(parseInt(req.params.orderID)).update({
-									sent: true
+									sent: true,
+									sentAt: new Date()
 								}).run(connection, function(err, result) {
 									if (!err) {
 										res.sendStatus(200)
