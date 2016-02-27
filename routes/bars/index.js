@@ -35,12 +35,16 @@ module.exports = function(app) {
 						barID: parseInt(req.params.barID)
 					}).run(connection, function(err, cursor) {
 						cursor.toArray(function(err, results) {
-							orders = []
-							for (var i = 0; i < results.length; i++) {
-								orders.push(results[i].id)
-							}
-							orders.sort()
-							res.json(orders)
+							results.sort(function(a, b) {
+								if (a.id < b.id) {
+									return -1
+								} else if (a.id > b.id) {
+									return 1
+								} else {
+									return 0
+								}
+							})
+							res.json(results)
 							connection.close()
 						})
 					})
