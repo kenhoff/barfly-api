@@ -64,7 +64,8 @@ module.exports = function(app) {
 					getNextCounter("orders", connection, function(err, newCounter) {
 						r.table("orders").insert({
 							id: newCounter,
-							barID: parseInt(req.params.barID)
+							barID: parseInt(req.params.barID),
+							sent: false
 						}, {
 							returnChanges: true
 						}).run(connection, function(err, result) {
