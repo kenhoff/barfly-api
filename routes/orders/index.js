@@ -14,10 +14,10 @@ module.exports = function(app) {
 		onConnect.connect(function(err, connection) {
 				r.table('product_orders').filter({
 					parentOrderID: parseInt(req.params.orderID)
-				}).without("id", "parentOrderID").run(connection, function(err, cursor) {
+				}).without("parentOrderID").run(connection, function(err, cursor) {
 					cursor.toArray(function(err, results) {
 						// also, get information from the parent order
-						r.table('orders').get(parseInt(req.params.orderID)).run(connection, function (err, order) {
+						r.table('orders').get(parseInt(req.params.orderID)).run(connection, function(err, order) {
 							// needs to handle if there is no order
 							res.json({
 								sent: order.sent,
