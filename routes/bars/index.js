@@ -10,7 +10,7 @@ module.exports = function(app) {
 	require('./starred')(app);
 
 	app.get("/bars/:barID", jwtCheck, function(req, res) {
-		getUserBars(req.user.user_id, function(bars) {
+		getUserBars(req.user.sub, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(barID) > -1) {
 				onConnect.connect(function(err, connection) {
@@ -27,7 +27,7 @@ module.exports = function(app) {
 
 	app.get("/bars/:barID/orders", jwtCheck, function(req, res) {
 		// check and make sure the user is a member of this bar
-		getUserBars(req.user.user_id, function(bars) {
+		getUserBars(req.user.sub, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
 				onConnect.connect(function(err, connection) {
@@ -57,7 +57,7 @@ module.exports = function(app) {
 
 	app.post("/bars/:barID/orders", jwtCheck, function(req, res) {
 		// check and make sure the user is a member of this bar
-		getUserBars(req.user.user_id, function(bars) {
+		getUserBars(req.user.sub, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(parseInt(req.params.barID)) > -1) {
 				onConnect.connect(function(err, connection) {
