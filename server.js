@@ -1,7 +1,9 @@
 if (process.env.NODE_ENV != "production") {
 	require('dotenv').load()
+} else {
+	require("newrelic")
 }
-require("newrelic")
+
 
 var app = require('express')();
 var jwt = require('express-jwt');

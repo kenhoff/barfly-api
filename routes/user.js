@@ -51,6 +51,7 @@ module.exports = function(app) {
 	})
 
 	app.get("/user/bars", jwtCheck, function(req, res) {
+		console.log(req.user.user_id);
 		getUserBars(req.user.user_id, function(bars) {
 			res.send(bars)
 		})
@@ -113,6 +114,7 @@ module.exports = function(app) {
 	getUserBars = function(userID, cb) {
 		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
 		onConnect.connect(function(err, connection) {
+			console.log(userID);
 			r.table("bar_memberships").filter({
 				userID: userID
 			}).withFields("barID").run(connection, function(err, cursor) {
