@@ -6,7 +6,7 @@ var r = require('rethinkdb');
 module.exports = function(app) {
 	app.get("/bars/:barID/starred", jwtCheck, function(req, res) {
 		// just get all starred items for a bar with barID = req.params.barID
-		getUserBars(req.user.user_id, function(bars) {
+		getUserBars(req.user.sub, function(bars) {
 			barID = parseInt(req.params.barID)
 			if (bars.indexOf(barID) > -1) {
 				onConnect.connect(function(err, connection) {
@@ -29,7 +29,7 @@ module.exports = function(app) {
 		// req.body must contain a sizeID and productID
 		if (("sizeID" in req.body) && ("productID" in req.body)) {
 			// if so, then just insert a new record in the starred table with barID, sizeID and productID
-			getUserBars(req.user.user_id, function(bars) {
+			getUserBars(req.user.sub, function(bars) {
 				barID = parseInt(req.params.barID)
 				if (bars.indexOf(barID) > -1) {
 					onConnect.connect(function(err, connection) {
@@ -59,7 +59,7 @@ module.exports = function(app) {
 		// if so, then just delete the record that matches that barID, sizeID and productID
 		if (("sizeID" in req.body) && ("productID" in req.body)) {
 			// if so, then just insert a new record in the starred table with barID, sizeID and productID
-			getUserBars(req.user.user_id, function(bars) {
+			getUserBars(req.user.sub, function(bars) {
 				barID = parseInt(req.params.barID)
 				if (bars.indexOf(barID) > -1) {
 					onConnect.connect(function(err, connection) {

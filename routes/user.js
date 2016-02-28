@@ -11,7 +11,7 @@ module.exports = function(app) {
 
 	app.get("/user", jwtCheck, function(req, res) {
 		request.get({
-			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
 			headers: {
 				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 			},
@@ -30,7 +30,7 @@ module.exports = function(app) {
 	app.patch("/user", jwtCheck, function(req, res) {
 		// TODO validate req.body.phone
 		request.patch({
-			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
 			headers: {
 				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 			},
@@ -51,8 +51,7 @@ module.exports = function(app) {
 	})
 
 	app.get("/user/bars", jwtCheck, function(req, res) {
-		console.log(req.user.user_id);
-		getUserBars(req.user.user_id, function(bars) {
+		getUserBars(req.user.sub, function(bars) {
 			res.send(bars)
 		})
 	})
@@ -71,7 +70,7 @@ module.exports = function(app) {
 					zipCode: parseInt(req.body.zipCode)
 				}).run(connection, function(err, result) {
 					newBarID = newCounter
-					addUserToBar(req.user.user_id, newBarID, function() {
+					addUserToBar(req.user.sub, newBarID, function() {
 						res.send({
 							id: newCounter,
 							barName: req.body.barName,
@@ -114,7 +113,6 @@ module.exports = function(app) {
 	getUserBars = function(userID, cb) {
 		// instead of getting the list of user bars from Auth0, we're gonna get the list of user bars from the "bar_memberships" table
 		onConnect.connect(function(err, connection) {
-			console.log(userID);
 			r.table("bar_memberships").filter({
 				userID: userID
 			}).withFields("barID").run(connection, function(err, cursor) {

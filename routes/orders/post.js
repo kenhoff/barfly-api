@@ -18,7 +18,7 @@ module.exports = function(app) {
 				cursor.toArray(function(err, productOrders) {
 					// look up user info, include it with productOrders
 					request.get({
-						url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.user_id,
+						url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
 						headers: {
 							"Authorization": "Bearer " + process.env.AUTH0_API_JWT
 						}
