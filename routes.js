@@ -6,7 +6,7 @@ var jwtCheck = require('./jwtCheck.js');
 
 module.exports = function(app) {
 	app.get("/", function(req, res) {
-		res.send(200)
+		res.send("burlock")
 	})
 	require("./routes/user.js")(app)
 	require("./routes/bars")(app)
