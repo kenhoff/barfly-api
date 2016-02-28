@@ -67,6 +67,7 @@ sendProductOrders = function(productOrders, barID, user, cb) {
 	})
 }
 
+
 sendRepOrder = function(barID, user, repOrder, cb) {
 	// console.log(repOrder);
 	// okay, here's what we'd like to send to the reps:
@@ -98,6 +99,18 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 							body: smsString
 						}, function(err, responseData) {
 							console.log(responseData.body);
+
+							// send order into slack here
+							request.post({
+								url: process.env.SLACK_WEBHOOK_URL,
+								form: {
+									"payload": JSON.stringify({
+										"text": "```" + responseData.body + "```"
+									})
+								}
+							})
+
+
 							cb(err)
 							connection.close()
 						})
