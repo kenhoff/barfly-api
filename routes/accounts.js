@@ -27,19 +27,45 @@ module.exports = function(app) {
 
 	app.post("/accounts", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
-			getNextCounter("accounts", connection, function(err, newCounter) {
-				// should really probably check to see if there's already an account in here...
-				r.table('accounts').insert({
-					barID: parseInt(req.body.barID),
-					repID: req.body.repID,
-					distributorID: parseInt(req.body.distributorID)
-				}).run(connection, function(err, result) {
-					if (!err) {
-						res.sendStatus(200)
+			// first, check to see if there's already an account with this barID and distributorID
+			r.table("accounts").filter({
+				barID: parseInt(req.body.barID),
+				distributorID: parseInt(req.body.distributorID)
+			}).run(connection, function(err, cursor) {
+				cursor.toArray(function(err, results) {
+					if (results.length >= 1) {
+						// if there is, update that one
+						r.table('accounts').get(results[0].id).update({
+							barID: parseInt(req.body.barID),
+							repID: req.body.repID,
+							distributorID: parseInt(req.body.distributorID)
+						}).run(connection, function(err, result) {
+							if (!err) {
+								res.sendStatus(200)
+							}
+							connection.close()
+						})
+
+					} else {
+						// if not, insert a new one
+						getNextCounter("accounts", connection, function(err, newCounter) {
+							// should really probably check to see if there's already an account in here...
+							r.table('accounts').insert({
+								barID: parseInt(req.body.barID),
+								repID: req.body.repID,
+								distributorID: parseInt(req.body.distributorID)
+							}).run(connection, function(err, result) {
+								if (!err) {
+									res.sendStatus(200)
+								}
+								connection.close()
+							})
+						})
 					}
-					connection.close()
 				})
 			})
+
+
 		})
 	})
 }
