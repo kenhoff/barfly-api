@@ -21,7 +21,8 @@ module.exports = function(app) {
 							// needs to handle if there is no order
 							res.json({
 								sent: order.sent,
-								productOrders: results
+								productOrders: results,
+								sentAt: order.sentAt
 							})
 							connection.close()
 						})
