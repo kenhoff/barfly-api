@@ -100,15 +100,18 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 						}, function(err, responseData) {
 							console.log(responseData.body);
 
-							// send order into slack here
-							request.post({
-								url: process.env.SLACK_WEBHOOK_URL,
-								form: {
-									"payload": JSON.stringify({
-										"text": "```" + responseData.body + "```"
-									})
-								}
-							})
+
+							// if process.env.NODE_ENV == "production", send order into slack here
+							if (process.env.NODE_ENV == "production") {
+								request.post({
+									url: process.env.SLACK_WEBHOOK_URL,
+									form: {
+										"payload": JSON.stringify({
+											"text": "```" + responseData.body + "```"
+										})
+									}
+								})
+							}
 
 
 							cb(err)
