@@ -103,8 +103,8 @@ module.exports = function(app) {
 		// look up in zipcode_product_distributor table
 		onConnect.connect(function(err, connection) {
 			r.table("zipcode_product_distributor").filter({
-				zipcode: req.params.zipcode,
-				productID: req.params.productID
+				zipcode: parseInt(req.params.zipcode),
+				productID: parseInt(req.params.productID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
 					// if results.length >= 1, use the first ID and update
