@@ -85,7 +85,8 @@ module.exports = function(app) {
 				} else {
 					cursor.toArray(function(err, results) {
 						if (results.length > 1) {
-							// throw error
+							// just give the first one back - there shouldn't be more than one, but whatever
+							res.json(results[0])
 						} else if (results.length == 0) {
 							res.json({})
 						} else {
@@ -102,15 +103,24 @@ module.exports = function(app) {
 		// look up in zipcode_product_distributor table
 		onConnect.connect(function(err, connection) {
 			r.table("zipcode_product_distributor").filter({
-				zipcode: req.params.zipcode,
-				productID: req.params.productID
+				zipcode: parseInt(req.params.zipcode),
+				productID: parseInt(req.params.productID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
+					// if results.length >= 1, use the first ID and update
 					if (results.length >= 1) {
-						// throw error
-						connection.close()
-						res.sendStatus(500)
+						r.table("zipcode_product_distributor").get(results[0].id).update({
+							zipcode: parseInt(req.params.zipcode),
+							productID: parseInt(req.params.productID),
+							distributorID: parseInt(req.body.distributorID)
+						}).run(connection, function(err, result) {
+							if (!err) {
+								res.sendStatus(200)
+								connection.close()
+							}
+						})
 					} else {
+						// if results.length == 0, just insert like normal
 						// save the zipcode_product_distributor entry
 						r.table("zipcode_product_distributor").insert({
 							zipcode: parseInt(req.params.zipcode),
