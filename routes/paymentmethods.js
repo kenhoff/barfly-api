@@ -3,6 +3,7 @@
 // var getNextCounter = require('../getNextCounter.js')
 var jwtCheck = require("../jwtCheck.js")
 var request = require("request")
+var async = require("async")
 
 
 var stripe = require("stripe")(
@@ -85,22 +86,50 @@ module.exports = function(app) {
 						}
 					})
 				} else {
-					// if a user does already have a stripe id
+					// if a user does already have a stripe id, get user's cards
+					stripe.customers.listCards(user.app_metadata.stripe_id, function(err, cards) {
+						// asynchronously called
+						if (err) {
+							res.status(500).send(err)
+						} else if (cards.data.length == 0) {
+							// if user has no cards, just add a new one
+							stripe.customers.createSource(user.app_metadata.stripe_id, {
+								source: req.body.token.id
+							}, function(err) {
+								if (err) {
+									res.status(500).send(err)
+								} else {
+									res.sendStatus(200)
+								}
+							})
+						} else {
+							// if user has cards, delete old cards, then add new one
+							async.each(cards.data, function(card, cb) {
+								// delete card, call cb
+								stripe.customers.deleteCard(user.app_metadata.stripe_id, card.id, function(err) {
+									cb(err)
+								})
+							}, function(err) {
+								if (err) {
+									res.status(500).send(err)
+								} else {
+									// add new card
+									stripe.customers.createSource(user.app_metadata.stripe_id, {
+										source: req.body.token.id
+									}, function(err) {
+										if (err) {
+											res.status(500).send(err)
+										} else {
+											res.sendStatus(200)
+										}
+									})
+								}
+							})
+						}
+					})
 
 				}
 
-				// else {
-				// 	stripe.customers.listCards(user.app_metadata.stripe_id, function(err, cards) {
-				// 		// asynchronously called
-				// 		if (err) {
-				// 			res.status(500).send(err)
-				// 		} else if (cards.data.length == 0) {
-				// 			res.json({})
-				// 		} else {
-				// 			res.json(cards.data[0])
-				// 		}
-				// 	})
-				// }
 			}
 		})
 	})
