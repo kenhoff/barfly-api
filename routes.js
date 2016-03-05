@@ -18,4 +18,5 @@ module.exports = function(app) {
 	require("./routes/reps.js")(app)
 	require("./routes/containers.js")(app)
 	require("./routes/packaging.js")(app)
+	require("./routes/paymentmethods.js")(app)
 }
