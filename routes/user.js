@@ -1,11 +1,12 @@
-var jwtCheck = require('../jwtCheck.js');
+var jwtCheck = require('../jwtCheck.js')
+
 // hacky and gross. any way around this?
 
-var onConnect = require('../onConnect.js');
-var getNextCounter = require('../getNextCounter.js');
-var r = require('rethinkdb');
+var onConnect = require('../onConnect.js')
+var getNextCounter = require('../getNextCounter.js')
+var r = require('rethinkdb')
 
-var request = require('request');
+var request = require('request')
 
 module.exports = function(app) {
 
