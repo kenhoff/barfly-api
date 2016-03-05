@@ -1,5 +1,19 @@
-# barfly-api
-The part that handles the data
+# Burlock API
+
+## Pipeline
+
+`development --> staging --> master`
+
+On the `development` branch, the Burlock API looks for RethinkDB on `localhost`.
+
+On the `staging` branch, the Burlock API looks for the **production** RethinkDB.
+
+On the `master` branch, the Burlock API looks for the **production** RethinkDB.
+
+
+
+
+
 
 Thoughts on API routes
 
