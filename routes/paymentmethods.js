@@ -7,7 +7,7 @@ var async = require("async");
 
 
 var stripe = require("stripe")(
-	"sk_test_wjIDkyybByjHF1YTuxCMy7l8"
+	process.env.STRIPE_SECRET_KEY
 );
 
 module.exports = function(app) {
