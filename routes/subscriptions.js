@@ -94,6 +94,16 @@ module.exports = function(app) {
 				var user = JSON.parse(body);
 				if (!("app_metadata" in user) || !("stripe_id" in user.app_metadata)) {
 					res.sendStatus(200);
+				} else {
+					stripe.customers.listSubscriptions(user.app_metadata.stripe_id, function(err, subscriptions) {
+						if (err) {
+							res.status(500).send(err);
+						} else if (subscriptions.data.length == 0) {
+							res.sendStatus(200);
+						} else {
+							res.sendStatus(200);
+						}
+					});
 				}
 			}
 		});
