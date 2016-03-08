@@ -1,5 +1,7 @@
 var jwtCheck = require('../jwtCheck.js');
 var request = require('request');
+var async = require('async');
+
 
 
 var stripe = require("stripe")(
@@ -101,7 +103,36 @@ module.exports = function(app) {
 						} else if (subscriptions.data.length == 0) {
 							res.sendStatus(200);
 						} else {
-							res.sendStatus(200);
+							async.map(subscriptions.data, function(subscription, cb) {
+								if (subscription.status == "trialing") {
+									// set subscription to end at the end of the trial
+									stripe.customers.cancelSubscription(user.app_metadata.stripe_id, subscription.id, {
+										at_period_end: true
+									}, function(err) {
+										if (err) {
+											cb(err);
+										} else {
+											cb();
+										}
+									});
+								} else if (subscription.status == "active") {
+									stripe.customers.cancelSubscription(user.app_metadata.stripe_id, subscription.id, function(err) {
+										if (err) {
+											cb(err);
+										} else {
+											cb();
+										}
+									});
+								} else {
+									cb();
+								}
+							}, function(err) {
+								if (err) {
+									res.status(500).send(err);
+								} else {
+									res.sendStatus(200);
+								}
+							});
 						}
 					});
 				}
