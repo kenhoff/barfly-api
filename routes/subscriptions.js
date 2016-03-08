@@ -1,4 +1,6 @@
 var jwtCheck = require('../jwtCheck.js');
+var request = require('request');
+
 
 var stripe = require("stripe")(
 	process.env.STRIPE_SECRET_KEY
@@ -33,6 +35,6 @@ module.exports = function(app) {
 					});
 				}
 			}
-		})
+		});
 	});
 };
