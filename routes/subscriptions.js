@@ -81,5 +81,22 @@ module.exports = function(app) {
 			}
 		});
 	});
+	app.delete("/subscriptions", jwtCheck, function(req, res) {
+		request.get({
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
+			headers: {
+				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
+			}
+		}, function(err, response, body) {
+			if (err) {
+				res.status(500).send(err);
+			} else {
+				var user = JSON.parse(body);
+				if (!("app_metadata" in user) || !("stripe_id" in user.app_metadata)) {
+					res.sendStatus(200);
+				}
+			}
+		});
+	});
 
 };
