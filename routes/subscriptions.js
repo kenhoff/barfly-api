@@ -52,6 +52,7 @@ module.exports = function(app) {
 			} else {
 				var user = JSON.parse(body);
 				if (!("app_metadata" in user) || !("stripe_id" in user.app_metadata)) {
+					// we haven't created a stripe customer for this user
 					// create new user with new subscription, save stripe_id to user
 					stripe.customers.create({
 						description: user.name,
@@ -77,6 +78,19 @@ module.exports = function(app) {
 									res.sendStatus(200);
 								}
 							});
+						}
+					});
+				} else {
+					// check and see if our user already has any subscriptions
+					stripe.customers.listSubscriptions(user.app_metadata.stripe_id, function(err, subscriptions) {
+						console.log(subscriptions);
+						if (subscriptions.data.length != 0) {
+							// if so, check each subscription
+							// 		if it's an trial subscription, set it not to expire
+						} else {
+							// if no subscriptions, check "startedTrial" flag on user object
+							// 		If no "startedTrial" flag, or if "startedTrial" is false, create a new subscription with trial
+							// 		If "startedTrial", create a new subscription with no trial.
 						}
 					});
 				}
