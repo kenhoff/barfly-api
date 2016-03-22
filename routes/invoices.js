@@ -31,8 +31,8 @@ module.exports = function(app) {
 						} else {
 							if (invoices.data.length != 0) {
 								// just for testing
-								invoices.data[0].paid = false;
-								invoices.data[0].amount_due = 3000;
+								// invoices.data[0].paid = false;
+								// invoices.data[0].amount_due = 3000;
 								res.status(200).send(invoices.data[0]);
 							} else {
 								res.status(200).send({});
