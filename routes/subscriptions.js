@@ -68,7 +68,8 @@ module.exports = function(app) {
 								},
 								form: {
 									app_metadata: {
-										stripe_id: customer.id
+										stripe_id: customer.id,
+										startedTrial: true
 									}
 								}
 							}, function(err) {
@@ -84,12 +85,30 @@ module.exports = function(app) {
 					// check and see if our user already has any subscriptions
 					stripe.customers.listSubscriptions(user.app_metadata.stripe_id, function(err, subscriptions) {
 						if (subscriptions.data.length != 0) {
+							// if so, check each subscription
 							async.map(subscriptions.data, function(subscription, cb) {
 								if (subscription.status == "trialing" && subscription.cancel_at_period_end) {
+									// if it's an trial subscription, set it not to expire
 									stripe.customers.updateSubscription(user.app_metadata.stripe_id, subscription.id, {
 										plan: "standard"
 									}, function(err) {
-										cb(err);
+										if (err) {
+											cb(err);
+										} else {
+											request.patch({
+												url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
+												headers: {
+													"Authorization": "Bearer " + process.env.AUTH0_API_JWT
+												},
+												form: {
+													app_metadata: {
+														startedTrial: true
+													}
+												}
+											}, function(err) {
+												cb(err);
+											});
+										}
 									});
 								}
 							}, function(err) {
@@ -99,12 +118,48 @@ module.exports = function(app) {
 									res.sendStatus(200);
 								}
 							});
-							// if so, check each subscription
-							// 		if it's an trial subscription, set it not to expire
 						} else {
 							// if no subscriptions, check "startedTrial" flag on user object
-							// 		If no "startedTrial" flag, or if "startedTrial" is false, create a new subscription with trial
-							// 		If "startedTrial", create a new subscription with no trial.
+							if (!("startedTrial" in user.app_metadata) || (!user.app_metadata.startedTrial)) {
+								// If no "startedTrial" flag, or if "startedTrial" is false, create a new subscription with trial
+								stripe.customers.createSubscription(user.app_metadata.stripe_id, {
+									plan: "standard"
+								}, function(err) {
+									if (err) {
+										res.status(500).send(err);
+									} else {
+										request.patch({
+											url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.user.sub,
+											headers: {
+												"Authorization": "Bearer " + process.env.AUTH0_API_JWT
+											},
+											form: {
+												app_metadata: {
+													startedTrial: true
+												}
+											}
+										}, function(err) {
+											if (err) {
+												res.status(500).send(err);
+											} else {
+												res.sendStatus(200);
+											}
+										});
+									}
+								});
+							} else {
+								// If "startedTrial", attempt to create a new subscription with no trial.
+								stripe.customers.createSubscription(user.app_metadata.stripe_id, {
+									plan: "standard",
+									trial_end: "now"
+								}, function(err) {
+									if (err) {
+										res.status(500).send(err);
+									} else {
+										res.sendStatus(200);
+									}
+								});
+							}
 						}
 					});
 				}
