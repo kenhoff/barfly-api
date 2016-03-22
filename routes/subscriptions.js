@@ -83,8 +83,22 @@ module.exports = function(app) {
 				} else {
 					// check and see if our user already has any subscriptions
 					stripe.customers.listSubscriptions(user.app_metadata.stripe_id, function(err, subscriptions) {
-						console.log(subscriptions);
 						if (subscriptions.data.length != 0) {
+							async.map(subscriptions.data, function(subscription, cb) {
+								if (subscription.status == "trialing" && subscription.cancel_at_period_end) {
+									stripe.customers.updateSubscription(user.app_metadata.stripe_id, subscription.id, {
+										plan: "standard"
+									}, function(err) {
+										cb(err);
+									});
+								}
+							}, function(err) {
+								if (err) {
+									res.status(500).send(err);
+								} else {
+									res.sendStatus(200);
+								}
+							});
 							// if so, check each subscription
 							// 		if it's an trial subscription, set it not to expire
 						} else {
