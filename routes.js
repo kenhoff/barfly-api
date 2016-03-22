@@ -10,10 +10,11 @@ module.exports = function(app) {
 	});
 	require("./routes/bars")(app);
 	require("./routes/orders")(app);
-	
+
 	require("./routes/accounts.js")(app);
 	require("./routes/containers.js")(app);
 	require("./routes/distributors.js")(app);
+	require("./routes/invoices.js")(app);
 	require("./routes/packaging.js")(app);
 	require("./routes/paymentmethods.js")(app);
 	require("./routes/products.js")(app);

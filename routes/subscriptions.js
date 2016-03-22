@@ -32,6 +32,8 @@ module.exports = function(app) {
 						} else if (subscriptions.data.length == 0) {
 							res.json({});
 						} else {
+							// just for testing:
+							// subscriptions.data[0].status = "past_due";
 							res.json(subscriptions.data[0]);
 						}
 					});
