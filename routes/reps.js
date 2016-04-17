@@ -3,6 +3,7 @@ var onConnect = require('../onConnect.js');
 // var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 var request = require('request');
+var async = require('async');
 
 module.exports = function(app) {
 	app.get("/reps", function(req, res) {
@@ -12,8 +13,28 @@ module.exports = function(app) {
 			r.table("distributor_memberships").filter({
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
-				cursor.toArray(function(err, results) {
-					res.json(results);
+				cursor.toArray(function(err, reps) {
+					async.map(reps, function (rep, cb) {
+						// get rep phone #
+						request.get({
+							url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + rep.repID,
+							headers: {
+								"Authorization": "Bearer " + process.env.AUTH0_API_JWT
+							}
+						}, function(err, response, body) {
+							if (err) {
+								res.sendStatus(500);
+							} else if (response.statusCode < 300) {
+								var newRep = Object.assign({}, rep);
+								newRep.repPhone = JSON.parse(body).user_metadata.phone;
+								cb(null, newRep);
+							} else {
+								res.sendStatus(500);
+							}
+						});
+					}, function (err, results) {
+						res.json(results);
+					});
 					connection.close();
 				});
 			});
