@@ -1,6 +1,6 @@
 var r = require('rethinkdb');
 var onConnect = require('../onConnect.js');
-var getNextCounter = require('../getNextCounter.js');
+// var getNextCounter = require('../getNextCounter.js');
 var jwtCheck = require('../jwtCheck.js');
 var request = require('request');
 
@@ -13,12 +13,12 @@ module.exports = function(app) {
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, results) {
-					res.json(results)
-					connection.close()
-				})
-			})
-		})
-	})
+					res.json(results);
+					connection.close();
+				});
+			});
+		});
+	});
 
 	app.get("/reps/:repID", function(req, res) {
 		// here, we need to call the Auth0 API to get the rep.
@@ -30,20 +30,20 @@ module.exports = function(app) {
 			form: {}
 		}, function(err, response, body) {
 			if (err) {
-				res.sendStatus(500)
+				res.sendStatus(500);
 			} else if (response.statusCode < 300) {
-				res.json(JSON.parse(body))
+				res.json(JSON.parse(body));
 			} else {
-				res.sendStatus(500)
+				res.sendStatus(500);
 			}
-		})
+		});
 
-	})
+	});
 
 	app.post("/reps", jwtCheck, function(req, res) {
 		// here, we need to call the Auth0 API to create the rep.
 
-		repEmail = makePassword() + "@" + makePassword() + ".com"
+		var repEmail = makePassword() + "@" + makePassword() + ".com";
 
 		request.post({
 			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users",
@@ -61,14 +61,14 @@ module.exports = function(app) {
 			}
 		}, function(err, response, body) {
 			if (err) {
-				res.status(500).send(err)
+				res.status(500).send(err);
 			} else if (response.statusCode < 300) {
-				res.json(JSON.parse(body))
+				res.json(JSON.parse(body));
 			} else {
-				res.status(500).send(err)
+				res.status(500).send(err);
 			}
-		})
-	})
+		});
+	});
 
 	app.post("/reps/:repID/memberships", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
@@ -76,12 +76,12 @@ module.exports = function(app) {
 			r.table("distributor_memberships").insert({
 				repID: req.params.repID,
 				distributorID: parseInt(req.body.distributorID)
-			}).run(connection, function(err, result) {
-				res.sendStatus(200)
-				connection.close()
-			})
-		})
-	})
+			}).run(connection, function(err) {
+				res.sendStatus(200);
+				connection.close();
+			});
+		});
+	});
 
 	function makePassword() {
 		var text = "";
@@ -92,4 +92,4 @@ module.exports = function(app) {
 
 		return text;
 	}
-}
+};
