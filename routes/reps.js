@@ -76,7 +76,7 @@ module.exports = function(app) {
 			r.table("distributor_memberships").insert({
 				repID: req.params.repID,
 				distributorID: parseInt(req.body.distributorID)
-			}).run(connection, function(err) {
+			}).run(connection, function() {
 				res.sendStatus(200);
 				connection.close();
 			});
