@@ -26,7 +26,9 @@ module.exports = function(app) {
 								cb(err);
 							} else {
 								var newRep = Object.assign({}, rep);
-								newRep.repPhone = JSON.parse(body).user_metadata.phone;
+								if (("user_metadata" in JSON.parse(body)) && ("phone" in JSON.parse(body).user_metadata)) {
+									newRep.repPhone = JSON.parse(body).user_metadata.phone;
+								}
 								cb(null, newRep);
 							}
 						});
