@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "start": "node server.js",
-    "postinstall": "node createTables.js && node createSizes.js"
+    "postinstall": "node createTables.js && sleep 3; node createSizes.js"
   },
   "repository": {
     "type": "git",
