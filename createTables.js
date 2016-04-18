@@ -37,9 +37,11 @@ onConnect.connect(function(err, connection) {
 	}, function(err) {
 		if (err) {
 			throw err
+			process.exit(1)
 		} else {
 			console.log("done creating tables")
 			connection.close()
+			process.exit(0)
 		}
 	})
 })

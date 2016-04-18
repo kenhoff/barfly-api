@@ -14,7 +14,7 @@ module.exports = function(app) {
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
 				cursor.toArray(function(err, reps) {
-					async.map(reps, function (rep, cb) {
+					async.map(reps, function(rep, cb) {
 						// get rep phone #
 						request.get({
 							url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + rep.repID,
@@ -23,17 +23,21 @@ module.exports = function(app) {
 							}
 						}, function(err, response, body) {
 							if (err) {
-								res.sendStatus(500);
-							} else if (response.statusCode < 300) {
-								var newRep = Object.assign({}, rep);
-								newRep.repPhone = JSON.parse(body).user_metadata.phone;
-								cb(null, newRep);
+								cb(err);
 							} else {
-								res.sendStatus(500);
+								var newRep = Object.assign({}, rep);
+								if (("user_metadata" in JSON.parse(body)) && ("phone" in JSON.parse(body).user_metadata)) {
+									newRep.repPhone = JSON.parse(body).user_metadata.phone;
+								}
+								cb(null, newRep);
 							}
 						});
-					}, function (err, results) {
-						res.json(results);
+					}, function(err, results) {
+						if (err) {
+							res.send(err);
+						} else {
+							res.json(results);
+						}
 					});
 					connection.close();
 				});
