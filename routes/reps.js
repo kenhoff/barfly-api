@@ -80,7 +80,8 @@ module.exports = function(app) {
 				"email": repEmail,
 				"name": req.body.repName,
 				"user_metadata": {
-					"phone": req.body.repPhone
+					"phone": req.body.repPhone,
+					"name": req.body.repName
 				},
 				"password": makePassword()
 			}
