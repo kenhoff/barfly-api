@@ -92,7 +92,7 @@ sendRepOrder = function(barID, user, repOrder, cb) {
 				} else if (response.statusCode < 300) {
 					// contains rep name and number
 					createOrderStrings(repOrder.productOrders, function(err, orderStrings) {
-						smsString = assembleString(JSON.parse(body).name, bar.barName, orderStrings, user)
+						smsString = assembleString(JSON.parse(body).user_metadata.name, bar.barName, orderStrings, user)
 						twilioClient.sendMessage({
 							from: process.env.TWILIO_NUMBER,
 							to: JSON.parse(body).user_metadata.phone,
