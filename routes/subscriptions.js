@@ -57,7 +57,7 @@ module.exports = function(app) {
 					// we haven't created a stripe customer for this user
 					// create new user with new subscription, save stripe_id to user
 					stripe.customers.create({
-						description: user.name,
+						description: user.user_metadata.name,
 						plan: "standard"
 					}, function(err, customer) {
 						if (err) {

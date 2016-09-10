@@ -60,7 +60,7 @@ module.exports = function(app) {
 				if (!("app_metadata" in user) || !("stripe_id" in user.app_metadata)) {
 					// create stripe user, save to user.app_metadata
 					stripe.customers.create({
-						description: user.name,
+						description: user.user_metadata.name,
 						source: req.body.token.id
 					}, function(err, customer) {
 						if (err) {
