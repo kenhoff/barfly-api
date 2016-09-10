@@ -11,16 +11,20 @@ module.exports = function(app) {
 				barID: parseInt(req.query.barID),
 				distributorID: parseInt(req.query.distributorID)
 			}).run(connection, function(err, cursor) {
-				cursor.toArray(function(err, results) {
-					if (results.length > 1) {
-						// throw err
-					} else if (results.length == 0) {
-						res.json({})
-					} else {
-						res.json(results[0])
-					}
-					connection.close()
-				})
+				if (err) {
+					return res.status(500).send(err)
+				} else {
+					cursor.toArray(function(err, results) {
+						if (results.length > 1) {
+							// throw err
+						} else if (results.length == 0) {
+							res.json({})
+						} else {
+							res.json(results[0])
+						}
+						connection.close()
+					})
+				}
 			})
 		})
 	})
