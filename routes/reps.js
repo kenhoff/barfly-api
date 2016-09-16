@@ -96,6 +96,29 @@ module.exports = function(app) {
 		});
 	});
 
+	app.patch("/reps/:repID", jwtCheck, function(req, res) {
+		request.patch({
+			url: "https://" + process.env.AUTH0_DOMAIN + "/api/v2/users/" + req.params.repID,
+			headers: {
+				"Authorization": "Bearer " + process.env.AUTH0_API_JWT
+			},
+			form: {
+				"user_metadata": {
+					"phone": req.body.repPhone,
+					"name": req.body.repName
+				}
+			}
+		}, function(err, response, body) {
+			if (err) {
+				res.status(500).send(err);
+			} else if (response.statusCode < 300) {
+				res.json(JSON.parse(body));
+			} else {
+				res.status(500).send(err);
+			}
+		});
+	});
+
 	app.post("/reps/:repID/memberships", jwtCheck, function(req, res) {
 		onConnect.connect(function(err, connection) {
 			// really should check and see if there's already a membership for this rep and distributor...
